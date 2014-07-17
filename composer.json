@@ -1,0 +1,25 @@
+{
+    "name": "huge/rest",
+    "description" : "Framework PHP pour créer simplement, rapidement et efficacement une webapp REST",
+    "license": "MIT",
+    "keywords": ["ioc", "bean", "rest", "webapp", "api"],
+    "authors": [
+        {
+            "name": "Florent FREMONT",
+            "email": "ff.fremont.florent@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/ffremont/HugeRest/issues"
+    },
+    "require": {
+        "php": ">=5.3.3",
+        "apache/log4php": "2.3.0",
+        "phpunit/phpunit": "3.7.28",
+        "doctrine/annotations": "v1.2.0",
+        "huge/ioc": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {"Huge\\Rest\\": "src/main/php/"}
+    }
+}

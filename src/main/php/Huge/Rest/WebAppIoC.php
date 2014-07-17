@@ -1,0 +1,96 @@
+<?php
+
+namespace Huge\Rest;
+
+use Huge\IoC\Container\SuperIoC;
+use Huge\IoC\Factory\ConstructFactory;
+use Huge\IoC\Factory\SimpleFactory;
+use Huge\IoC\Scope;
+
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Annotations\AnnotationReader;
+
+class WebAppIoC extends SuperIoC {
+
+    /**
+     * Cache utilisé pour l'exposition REST
+     * 
+     * @var \Doctrine\Common\Cache\Cache
+     */
+    private $apiCacheImpl;
+    
+    private $logger;
+
+    public function __construct($version = '') {
+        parent::__construct($version);
+
+        $this->apiCacheImpl = null;
+        $this->logger = \Logger::getLogger(__CLASS__);
+        $this->addDefinitions(array(
+            array(
+                'class' => 'Huge\Rest\Api',
+                'factory' => new ConstructFactory(array($this->apiCacheImpl), Scope::REQUEST)
+            ),
+            array(
+                 'class' => 'Huge\Rest\Http\HttpRequest',
+                'factory' => new ConstructFactory(array($_SERVER))
+            ),
+            array(
+                 'class' => 'Huge\Rest\Routing\Route',
+                'factory' => SimpleFactory::getInstance()
+            )
+        ));
+    }
+    
+    /**
+     * Retourne les définitions des ressources
+     * 
+     * @return array
+     */
+    public function getResources(){
+        $cacheKey = self::whoAmI().md5(serialize($this->getDefinitions())).$this->version.'_getResources';
+        if (!is_null($this->apiCacheImpl)) {
+            $resources = $this->cacheImpl->fetch($cacheKey);
+            if ($resources !== FALSE) {
+                return $resources;
+            }
+        }
+        
+        $resources = array();
+        $definitions = $this->getDefinitions();
+        $annotationReader = new AnnotationReader();
+        foreach($definitions as $definition){
+            $oResource = $annotationReader->getClassAnnotation(new \ReflectionClass($definition['class']), 'Huge\Rest\Annotations\Resource');
+            if(!is_null($oResource)){
+                $resources[] = $definition['id'];
+            }
+        }
+        
+        if (!is_null($this->apiCacheImpl)) {
+            $this->cacheImpl->save($cacheKey, $resources);
+        }
+        
+        return $resources;
+    }
+
+    public function start() {
+        parent::start();
+
+        $api = $this->getBean('Huge\Rest\Api');
+        if(is_null($api)){
+            $this->logger->error('Bean Huge\Rest\Api introuvable');
+        }else{
+            $this->getBean('Huge\Rest\Api')->run();
+        }
+    }
+
+    public function getApiCacheImpl() {
+        return $this->apiCacheImpl;
+    }
+
+    public function setApiCacheImpl(Cache $apiCacheImpl) {
+        $this->apiCacheImpl = $apiCacheImpl;
+    }
+
+}
+
