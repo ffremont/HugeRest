@@ -49,7 +49,7 @@ class WebAppIoC extends SuperIoC {
      */
     public function getResources(){
         $cacheKey = self::whoAmI().md5(serialize($this->getDefinitions())).$this->version.'_getResources';
-        if (!is_null($this->apiCacheImpl)) {
+        if ($this->apiCacheImpl !== null) {
             $resources = $this->cacheImpl->fetch($cacheKey);
             if ($resources !== FALSE) {
                 return $resources;
@@ -61,12 +61,12 @@ class WebAppIoC extends SuperIoC {
         $annotationReader = new AnnotationReader();
         foreach($definitions as $definition){
             $oResource = $annotationReader->getClassAnnotation(new \ReflectionClass($definition['class']), 'Huge\Rest\Annotations\Resource');
-            if(!is_null($oResource)){
+            if($oResource !== null){
                 $resources[] = $definition['id'];
             }
         }
         
-        if (!is_null($this->apiCacheImpl)) {
+        if ($this->apiCacheImpl !== null) {
             $this->cacheImpl->save($cacheKey, $resources);
         }
         
@@ -77,7 +77,7 @@ class WebAppIoC extends SuperIoC {
         parent::start();
 
         $api = $this->getBean('Huge\Rest\Api');
-        if(is_null($api)){
+        if($api === null){
             $this->logger->error('Bean Huge\Rest\Api introuvable');
         }else{
             $this->getBean('Huge\Rest\Api')->run();

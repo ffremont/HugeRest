@@ -9,7 +9,7 @@ class HttpResponse {
     private $headers;
     protected $entity;
     
-    const STATUS = array(
+    private static  $STATUS = array(
         100 => 'HTTP/1.1 100 Continue',
         101 => 'HTTP/1.1 101 Switching Protocols',
         200 => 'HTTP/1.1 200 OK',
@@ -52,11 +52,15 @@ class HttpResponse {
         505 => 'HTTP/1.1 505 HTTP Version Not Supported'
     );
     
-    public function __construct() {
-        $this->code = 200;
+    public function __construct($status = 200) {
+        $this->code = $status;
         $this->body = null;
         $this->headers = array();
         $this->entity = null;
+    }
+    
+    public static function ok(){
+        return new HttpResponse(200);
     }
     
     public function getCode() {
@@ -65,6 +69,7 @@ class HttpResponse {
 
     public function setCode($code) {
         $this->code = $code;
+        return $this;
     }
 
     public function getBody() {
@@ -73,6 +78,7 @@ class HttpResponse {
 
     public function setBody($body) {
         $this->body = $body;
+        return $this;
     }
 
     public function getHeaders() {
@@ -81,6 +87,7 @@ class HttpResponse {
 
     public function addHeader($name, $value) {
         $this->headers[$name] = $value;
+        return $this;
     }
 
     public function getEntity() {
@@ -89,18 +96,24 @@ class HttpResponse {
 
     public function setEntity($entity) {
         $this->entity = $entity;
+        return $this;
     }
     
     public function setContentType($type){
         $this->headers['Content-Type'] = $type;
+        return $this;
     }
     
     public function build(){
         foreach($this->headers as $key => $value){
-            header($key.': '.$value, true);
+            header($key.': '.$value);
         }
         
-        if(!is_null($this->body)){
+        if(isset(self::$STATUS[$this->code])){
+            header(self::$STATUS[$this->code]);
+        }
+        
+        if($this->body !== null){
             echo $this->body;
         }
     }

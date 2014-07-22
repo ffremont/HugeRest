@@ -15,7 +15,7 @@
     "require": {
         "php": ">=5.3.3",
         "apache/log4php": "2.3.0",
-        "phpunit/phpunit": "3.7.28",
+        "phpunit/phpunit": "4.1.4",
         "doctrine/annotations": "v1.2.0",
         "huge/ioc": "dev-master"
     },

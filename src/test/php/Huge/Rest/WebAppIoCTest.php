@@ -21,8 +21,9 @@ class WebAppIoCTest extends \PHPUnit_Framework_TestCase {
          * WebAppIo
          * Huge\Rest\Api
          *      Huge\Rest\Http\HttpRequest
+         *      Huge\Rest\Routing\Route
          */
-        $this->assertCount(3, $ioc->getBeans());
+        $this->assertCount(4, $ioc->getBeans());
     }
     
     /**
