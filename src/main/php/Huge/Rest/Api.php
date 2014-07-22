@@ -188,12 +188,30 @@ class Api {
         $httpResponse = null;
         
         try{
-            $beans = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');
-            foreach($beans as $idBeanFilter){
-                $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
+            $beansFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');
+            $filtersMapping = $this->webAppIoC->getFiltersMapping();
+            foreach($beansFilter as $idBeanFilter){
+                if(isset($filtersMapping[$idBeanFilter])){
+                    foreach($filtersMapping[$idBeanFilter] as $pathRegExp){
+                        if(preg_match('#'.$pathRegExp.'#', $this->request->getUri())){
+                            $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
+                            break;
+                        }
+                    }
+                }else{
+                    $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
+                }
+            }
+            $beansInterceptor = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IInterceptor');
+            foreach($beansInterceptor as $idBeanInterceptor){
+                $this->webAppIoC->getBean($idBeanInterceptor)->start($this->request);
             }
             
             $httpResponse = call_user_func_array(array($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass()), $this->route->getMatches());
+            
+            foreach($beansInterceptor as $idBeanInterceptor){
+                $this->webAppIoC->getBean($idBeanInterceptor)->end($httpResponse);
+            }
         }catch(\Exception $e){
             $beans = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IExceptionMapper');
             if(count($beans) === 1){

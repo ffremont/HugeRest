@@ -20,10 +20,19 @@ class WebAppIoC extends SuperIoC {
     private $apiCacheImpl;
     
     private $logger;
+    
+    /**
+     * Liste des filtres qui implémente IFilter
+     *      ID_BEAN_FILTRE => array( urlRegExp1, urlRegExp2 )
+     * 
+     * @var array
+     */
+    private $filtersMapping;
 
     public function __construct($version = '') {
         parent::__construct($version);
 
+        $this->filtersMapping = array();
         $this->apiCacheImpl = null;
         $this->logger = \Logger::getLogger(__CLASS__);
         $this->addDefinitions(array(
@@ -92,5 +101,12 @@ class WebAppIoC extends SuperIoC {
         $this->apiCacheImpl = $apiCacheImpl;
     }
 
+    public function getFiltersMapping() {
+        return $this->filtersMapping;
+    }
+
+    public function setFiltersMapping(array $filtersMapping) {
+        $this->filtersMapping = $filtersMapping;
+    }
 }
 
