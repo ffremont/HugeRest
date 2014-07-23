@@ -66,7 +66,34 @@ class HttpResponse {
     public function getCode() {
         return $this->code;
     }
+    
+    /**
+     * Ajout l'entête pour l'expiration
+     * 
+     * @param int $seconds
+     * @return \Huge\Rest\Http\HttpResponse
+     */
+    public function expires($seconds = 0){
+        $this->addHeader('Expires', gmdate('D, d M Y H:i:s', time() + $seconds) . ' GMT');
+        
+        return $this;
+    }
 
+    public function ContentTypeTxt(){
+        $this->setContentType('text/plain');
+        return $this;
+    }
+    
+     public function ContentTypeJson(){
+        $this->setContentType('application/json');
+        return $this;
+    }
+    
+    public function ContentTypeXml(){
+        $this->setContentType('application/xml');
+        return $this;
+    }
+    
     public static function code($code) {
         return new HttpResponse($code);
     }
@@ -105,7 +132,7 @@ class HttpResponse {
     
     public function build(){
         foreach($this->headers as $key => $value){
-            @header($key.': '.$value);
+            @header($key.': '.$value, true);
         }
         
         if(isset(self::$STATUS[$this->code])){
