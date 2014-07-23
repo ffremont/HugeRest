@@ -9,7 +9,6 @@ use Huge\Rest\Http\HttpRequest;
 use Huge\Rest\Routing\Route;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Huge\IoC\Utils\IocArray;
-
 use Huge\Rest\Exceptions\NotFoundException;
 
 /**
@@ -37,7 +36,7 @@ class Api {
      * @var \Huge\Rest\Http\HttpRequest
      */
     private $request;
-    
+
     /**
      *
      * @Autowired("Huge\Rest\Routing\Route")
@@ -55,7 +54,7 @@ class Api {
      *          contentType => application/json
      */
     private $routes;
-    
+
     /**
      * ContextRoot de l'application : 
      * Exemple : /services/personn/1 => services
@@ -69,7 +68,6 @@ class Api {
      * @var \Logger
      */
     private $logger;
-
     private static $TOKENS = array(
         ':string' => '([a-zA-Z]+)',
         ':number' => '([0-9]+)',
@@ -119,7 +117,7 @@ class Api {
                     continue;
                 }
                 $meths = array();
-                if ($oGetMethod !== null){
+                if ($oGetMethod !== null) {
                     $meths[] = 'GET';
                     $meths[] = 'HEAD';
                 }
@@ -164,9 +162,9 @@ class Api {
             if (!empty($route['contentTypes']) && !IocArray::in_array($request->getContentType(), $route['contentTypes'])) {
                 continue;
             }
-            
+
             $matches = array();
-            if (preg_match('#^' . ($this->contextRoot === '' ? '' : $this->contextRoot.'/').strtr($route['uri'], self::$TOKENS) . '$#', $request->getUri(), $matches)) {
+            if (preg_match('#^' . ($this->contextRoot === '' ? '' : $this->contextRoot . '/') . strtr($route['uri'], self::$TOKENS) . '$#', $request->getUri(), $matches)) {
                 array_shift($matches);
                 $this->route->init(array(
                     'resourceClass' => $route['classResource'],
@@ -184,60 +182,58 @@ class Api {
                 return true;
             }
         }
-        
+
         return false;
     }
 
     /**
      * Démarre l'analyse de la requête et le dispatch 
      */
-     public function run() {
+    public function run() {
         $this->loadRoutes();
         $this->findRoute($this->request);
         $httpResponse = null;
-        
-        try{
-            if(!$this->route->isInit()){
+
+        try {
+            if (!$this->route->isInit()) {
                 throw new NotFoundException($this->request->getUri());
             }
-            
+
             $beansFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');
             $filtersMapping = $this->webAppIoC->getFiltersMapping();
-            foreach($beansFilter as $idBeanFilter){
-                if(isset($filtersMapping[$idBeanFilter])){
-                    foreach($filtersMapping[$idBeanFilter] as $pathRegExp){
-                        if(preg_match('#'.$pathRegExp.'#', $this->request->getUri())){
-                            $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
-                            break;
-                        }
+            foreach ($beansFilter as $idBeanFilter) {
+                if (isset($filtersMapping[$idBeanFilter])) {
+                    if (preg_match('#' . $filtersMapping[$idBeanFilter] . '#', $this->request->getUri())) {
+                        $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
+                        break;
                     }
-                }else{
+                } else {
                     $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
                 }
             }
             $beansInterceptor = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IInterceptor');
-            foreach($beansInterceptor as $idBeanInterceptor){
+            foreach ($beansInterceptor as $idBeanInterceptor) {
                 $this->webAppIoC->getBean($idBeanInterceptor)->start($this->request);
             }
-            
+
             $httpResponse = call_user_func_array(array($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass()), $this->route->getMatches());
-            
-            foreach($beansInterceptor as $idBeanInterceptor){
+
+            foreach ($beansInterceptor as $idBeanInterceptor) {
                 $this->webAppIoC->getBean($idBeanInterceptor)->end($httpResponse);
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));
             $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : $exceptionMapperClassName;
-            
+
             $impls = $exceptionMapperClassName !== null ? class_implements($exceptionMapperClassName) : array();
-            if(IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls)){
-                $httpResponse = call_user_func_array($exceptionMapperClassName.'::map', array($e));
-            }else{
+            if (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls)) {
+                $httpResponse = call_user_func_array($exceptionMapperClassName . '::map', array($e));
+            } else {
                 $httpResponse = Http\HttpResponse::code(500);
             }
         }
-        
-        if(($httpResponse !== null) && ($httpResponse instanceof \Huge\Rest\Http\HttpResponse)){
+
+        if (($httpResponse !== null) && ($httpResponse instanceof \Huge\Rest\Http\HttpResponse)) {
             $httpResponse->build();
         }
     }
@@ -281,7 +277,7 @@ class Api {
     public function setContextRoot($contextRoot) {
         $this->contextRoot = trim($contextRoot, '/');
     }
-    
+
     public function getRoute() {
         return $this->route;
     }
@@ -289,5 +285,6 @@ class Api {
     public function setRoute(\Huge\Rest\Routing\Route $route) {
         $this->route = $route;
     }
+
 }
 
