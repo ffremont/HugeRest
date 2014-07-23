@@ -64,6 +64,10 @@ class WebAppIoC extends SuperIoC {
             array(
                 'class' => 'Huge\Rest\Routing\Route',
                 'factory' => SimpleFactory::getInstance()
+            ),
+            array(
+                'class' => 'Huge\Rest\Interceptors\PerfInterceptor',
+                'factory' => SimpleFactory::getInstance()
             )
         ));
     }
