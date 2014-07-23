@@ -234,7 +234,7 @@ class Api {
         }
 
         if (($httpResponse !== null) && ($httpResponse instanceof \Huge\Rest\Http\HttpResponse)) {
-            $httpResponse->build();
+            $httpResponse->build( $this->request !== null ? $this->request->getMethod() === 'HEAD' : true );
         }
     }
 

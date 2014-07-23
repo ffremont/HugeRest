@@ -130,7 +130,7 @@ class HttpResponse {
         return $this;
     }
     
-    public function build(){
+    public function build($withBody = true){
         foreach($this->headers as $key => $value){
             @header($key.': '.$value, true);
         }
@@ -139,7 +139,7 @@ class HttpResponse {
             @header(self::$STATUS[$this->code]);
         }
         
-        if($this->body !== null){
+        if($withBody && ($this->body !== null)){
             echo $this->body;
         }
     }
