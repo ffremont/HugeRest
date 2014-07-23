@@ -53,12 +53,12 @@ class PerfInterceptor implements IInterceptor{
         }
         
         $this->logger->info('Temps d\'exécution de la requête pendant '.round($time, 2).' ms');
-        $this->logger->info('Consommation de '.$this->memoryStart.' mo, avec un pic à '.$memoryPeak.' mo');
+        $this->logger->info('Consommation de '.$this->memoryStart.' mo, avec un pic à '.round($memoryPeak,2).' mo');
     }
 
     public function start(\Huge\Rest\Http\HttpRequest $request) {
         $this->startTime = microtime(true);
-        $this->memoryStart = memory_get_usage() / 1048576;
+        $this->memoryStart = round(memory_get_usage() / 1048576, 2);
     }
 
     public function getRequest() {
