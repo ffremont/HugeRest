@@ -177,12 +177,17 @@ class Api {
             }
 
             if ($this->route->isInit()) {
-                break;
+                return true;
             }
         }
+        
+        return false;
     }
 
-    public function run() {
+    /**
+     * Démarre l'analyse de la requête et le dispatch 
+     */
+     public function run() {
         $this->loadRoutes();
         $this->findRoute($this->request);
         $httpResponse = null;
@@ -213,9 +218,14 @@ class Api {
                 $this->webAppIoC->getBean($idBeanInterceptor)->end($httpResponse);
             }
         }catch(\Exception $e){
-            $beans = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IExceptionMapper');
-            if(count($beans) === 1){
-                $httpResponse = $this->webAppIoC->getBean($beans[0])->map($e);
+            $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));
+            $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : null;
+            
+            $impls = $exceptionMapperClassName !== null ? class_implements($exceptionMapperClassName) : array();
+            if(IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls)){
+                $httpResponse = call_user_func_array($exceptionMapperClassName.'::map', array($e));
+            }else{
+                $httpResponse = Http\HttpResponse::code(500);
             }
         }
         

@@ -46,7 +46,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
                 'factory' => SimpleFactory::getInstance()
             )
         ));
-        $ioc->start();
+        $ioc->run();
         
         $server = array(
             'HTTP_HOST' => 'localhost',
@@ -81,7 +81,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         $requete = new HttpRequest($server);
         $ioc->getBean('Huge\Rest\Api')->findRoute($requete);
         
-        $this->assertNotNull($ioc->getBean('Huge\Rest\Api')->getRoute());        
+        $this->assertNotNull($ioc->getBean('Huge\Rest\Api')->getRoute());     
     }
     
     /**
@@ -95,7 +95,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
                 'factory' => SimpleFactory::getInstance()
             )
         ));
-        $ioc->start();
+        $ioc->run();
         $this->assertCount(5, $ioc->getDefinitions());
         
         $routes = $ioc->getBean('Huge\Rest\Api')->getRoutes();

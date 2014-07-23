@@ -9,6 +9,6 @@ interface IExceptionMapper {
      * @param \Exception $e
      * @return \Huge\Rest\Http\HttpResponse
      */
-    public function map(\Exception $e);
+    public static function map(\Exception $e);
 }
 

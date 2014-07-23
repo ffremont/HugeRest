@@ -67,16 +67,15 @@ class HttpResponse {
         return $this->code;
     }
 
-    public function setCode($code) {
-        $this->code = $code;
-        return $this;
+    public static function code($code) {
+        return new HttpResponse($code);
     }
 
     public function getBody() {
         return $this->body;
     }
 
-    public function setBody($body) {
+    public function body($body) {
         $this->body = $body;
         return $this;
     }
@@ -94,7 +93,7 @@ class HttpResponse {
         return $this->entity;
     }
 
-    public function setEntity($entity) {
+    public function entity($entity) {
         $this->entity = $entity;
         return $this;
     }
@@ -106,11 +105,11 @@ class HttpResponse {
     
     public function build(){
         foreach($this->headers as $key => $value){
-            header($key.': '.$value);
+            @header($key.': '.$value);
         }
         
         if(isset(self::$STATUS[$this->code])){
-            header(self::$STATUS[$this->code]);
+            @header(self::$STATUS[$this->code]);
         }
         
         if($this->body !== null){
