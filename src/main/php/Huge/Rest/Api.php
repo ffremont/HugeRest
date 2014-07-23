@@ -119,8 +119,10 @@ class Api {
                     continue;
                 }
                 $meths = array();
-                if ($oGetMethod !== null)
+                if ($oGetMethod !== null){
                     $meths[] = 'GET';
+                    $meths[] = 'HEAD';
+                }
                 if ($oPutMethod !== null)
                     $meths[] = 'PUT';
                 if ($oPostMethod !== null)
@@ -225,7 +227,7 @@ class Api {
             }
         }catch(\Exception $e){
             $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));
-            $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : null;
+            $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : $exceptionMapperClassName;
             
             $impls = $exceptionMapperClassName !== null ? class_implements($exceptionMapperClassName) : array();
             if(IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls)){
