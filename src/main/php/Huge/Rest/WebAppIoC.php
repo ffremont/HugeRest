@@ -21,7 +21,7 @@ class WebAppIoC extends SuperIoC {
 
     /**
      * Liste des filtres qui implémente IFilter
-     *      ID_BEAN_FILTRE => array( urlRegExp1, urlRegExp2 )
+     *      ID_BEAN_FILTRE => urlRegExp
      * 
      * @var array
      */
@@ -141,8 +141,8 @@ class WebAppIoC extends SuperIoC {
         return $this->filtersMapping;
     }
 
-    public function setFiltersMapping(array $filtersMapping) {
-        $this->filtersMapping = $filtersMapping;
+    public function addFiltersMapping(array $filtersMapping) {
+        $this->filtersMapping = array_merge($this->filtersMapping, $filtersMapping);
     }
 
     public function getExceptionsMapping() {
