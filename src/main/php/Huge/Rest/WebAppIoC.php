@@ -111,15 +111,21 @@ class WebAppIoC extends SuperIoC {
 
     /**
      * Lance l'initialisation des conteneurs IoC et démarre l'analyse de la requête HTTP
+     * 
+     * @param $contextRoot ContextRoot de l'application s'il y en a un de spécifique
      */
-    public function run() {
+    public function run($contextRoot = null) {
        $this->start();
 
         $api = $this->getBean('Huge\Rest\Api');
         if ($api === null) {
             $this->logger->error('Bean Huge\Rest\Api introuvable');
         } else {
-            $this->getBean('Huge\Rest\Api')->run();
+            if($contextRoot !== null){
+                $api->setContextRoot($contextRoot);
+            }
+            
+            $api->run();
         }
     }
 
