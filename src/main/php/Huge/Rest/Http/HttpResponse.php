@@ -79,17 +79,17 @@ class HttpResponse {
         return $this;
     }
 
-    public function ContentTypeTxt(){
+    public function contentTypeTxt(){
         $this->setContentType('text/plain');
         return $this;
     }
     
-     public function ContentTypeJson(){
+     public function contentTypeJson(){
         $this->setContentType('application/json');
         return $this;
     }
     
-    public function ContentTypeXml(){
+    public function contentTypeXml(){
         $this->setContentType('application/xml');
         return $this;
     }
