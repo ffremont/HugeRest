@@ -10,6 +10,8 @@ use Huge\Rest\Routing\Route;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Huge\IoC\Utils\IocArray;
 
+use Huge\Rest\Exceptions\NotFoundException;
+
 /**
  * @Component
  */
@@ -193,6 +195,10 @@ class Api {
         $httpResponse = null;
         
         try{
+            if(!$this->route->isInit()){
+                throw new NotFoundException($this->request->getUri());
+            }
+            
             $beansFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');
             $filtersMapping = $this->webAppIoC->getFiltersMapping();
             foreach($beansFilter as $idBeanFilter){

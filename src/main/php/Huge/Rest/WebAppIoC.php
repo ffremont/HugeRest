@@ -34,6 +34,12 @@ class WebAppIoC extends SuperIoC {
      * @var array
      */
     private $exceptionsMapping;
+    
+    /**
+     * Vrai si le conteneur a déjà été initialisé
+     * 
+     * @var boolean
+     */
     private $isStarted;
 
     public function __construct($version = '') {
@@ -41,7 +47,9 @@ class WebAppIoC extends SuperIoC {
 
         $this->isStarted = false;
         $this->filtersMapping = array();
-        $this->exceptionsMapping = array();
+        $this->exceptionsMapping = array(
+            'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
+        );
         $this->apiCacheImpl = null;
         $this->logger = \Logger::getLogger(__CLASS__);
         $this->addDefinitions(array(
