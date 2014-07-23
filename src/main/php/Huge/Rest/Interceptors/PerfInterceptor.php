@@ -44,7 +44,7 @@ class PerfInterceptor implements IInterceptor{
     }
 
     public function end(\Huge\Rest\Http\HttpResponse $response) {
-        $time = ($time_end - $time_start) * 1000; // ms
+        $time = (microtime(true) - $this->startTime) * 1000; // ms
         $memoryPeak= memory_get_peak_usage() / 1048576;
         $memoryPeak= memory_get_peak_usage() / 1048576;
         
