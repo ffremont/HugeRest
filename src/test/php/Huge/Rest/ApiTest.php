@@ -96,10 +96,11 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             )
         ));
         $ioc->run();
-        $this->assertCount(5, $ioc->getDefinitions());
+        $this->assertCount(6, $ioc->getDefinitions());
         
         $routes = $ioc->getBean('Huge\Rest\Api')->getRoutes();
         $this->assertCount(3, $routes);
+        
         /**
          *[idBean] => Huge\Rest\Resources\Person
             [classResource] => Huge\Rest\Resources\Person
@@ -108,12 +109,12 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             [methods] => Array
                 (
                     [0] => GET
+                    [1] => HEAD
                 )
 
             [contentTypes] => 
-
          */
-        $this->assertArrayHasKey('d98c94842cc51c662701456469ce2286', $routes);
+        $this->assertArrayHasKey('ea964534a8049ac6f34133e9e5e7decb', $routes);
         
         /**
          * [idBean] => Huge\Rest\Resources\Person
@@ -123,14 +124,16 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             [methods] => Array
                 (
                     [0] => GET
+                    [1] => HEAD
                 )
 
             [contentTypes] => Array
                 (
                     [0] => application/json
                 )
+
          */
-        $this->assertArrayHasKey('611926bdc953b88838e951c53aac6e5f', $routes);
+        $this->assertArrayHasKey('8287e9f68a00f1039944ae9f9ab81318', $routes);
         
         /**
          *[idBean] => Huge\Rest\Resources\Person
@@ -140,15 +143,17 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             [methods] => Array
                 (
                     [0] => GET
-                    [1] => POST
+                    [1] => HEAD
+                    [2] => POST
                 )
 
             [contentTypes] => Array
                 (
                     [0] => application/json
                 )
+
          */
-        $this->assertArrayHasKey('6ddd9e2a6438348d90da952cba5e8da9', $routes);
+        $this->assertArrayHasKey('36f9eea8db2b822010ab3f19fb19e3b2', $routes);
         
     }
 }

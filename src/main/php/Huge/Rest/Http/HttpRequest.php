@@ -11,10 +11,14 @@ class HttpRequest {
 
     private $headers;
     private $server;
+    private $body;
+    private $entity;
 
     public function __construct($server = array()) {
         $this->server = $server;
         $this->headers = $this->_getallheaders($server);
+        $this->body = null;
+        $this->entity = null;
     }
 
     private function _getallheaders($server) {
@@ -68,6 +72,26 @@ class HttpRequest {
     public function getContentType(){
         return $this->getHeader('Content-Type');
     }
+    
+    /**
+     * Retourne le contenu de la requête en mode lazy
+     * 
+     * @return sring
+     */
+    public function getBody() {
+        if($this->body === null){
+            $this->body = file_get_contents("php://input");
+        }
+        
+        return $this->body;
+    }
+    
+    public function getEntity() {
+        return $this->entity;
+    }
 
+    public function setEntity($entity) {
+        $this->entity = $entity;
+    }
 }
 

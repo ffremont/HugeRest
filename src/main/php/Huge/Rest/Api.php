@@ -78,7 +78,6 @@ class Api {
         $this->contextRoot = trim($contextRoot, '/');
         $this->cacheImpl = $cache;
         $this->routes = array();
-        $this->route = null;
         $this->logger = \Logger::getLogger(__CLASS__);
     }
 
@@ -197,6 +196,16 @@ class Api {
         try {
             if (!$this->route->isInit()) {
                 throw new NotFoundException($this->request->getUri());
+            }
+            
+            // analyse le contenu pour le parser
+            if(IocArray::in_array($this->route->getMethod(), array('POST', 'PUT'))){
+                $requestParserClassName = $this->webAppIoC->getRequestParser($this->request);
+                if(IocArray::in_array('Huge\Rest\Process\IRequestParser', class_implements($requestParserClassName))){
+                    $this->request->setEntity(call_user_func_array($requestParserClassName . '::parse', array($this->request)));
+                }else{
+                    \Logger::getLogger(__CLASS__)->warn('Parsing de la requête HTTP impossible car la classe "'.$requestParserClassName.'" n\'implémente pas Huge\Rest\Process\IRequestParser');
+                }
             }
 
             $beansFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');

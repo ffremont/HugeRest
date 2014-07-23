@@ -35,6 +35,14 @@ class WebAppIoC extends SuperIoC {
      */
     private $exceptionsMapping;
     
+    private $defaultParserClassName;
+    
+    /**
+     *
+     * @var array
+     */
+    private $requestParsers;
+    
     /**
      * Vrai si le conteneur a déjà été initialisé
      * 
@@ -47,6 +55,8 @@ class WebAppIoC extends SuperIoC {
 
         $this->isStarted = false;
         $this->filtersMapping = array();
+        $this->requestParsers = array();
+        $this->defaultParserClassName = 'Huge\Rest\Parsers\JsonParser';
         $this->exceptionsMapping = array(
             'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
         );
@@ -145,6 +155,12 @@ class WebAppIoC extends SuperIoC {
         return $this->filtersMapping;
     }
 
+    /**
+     *  Ajout des filtres de type intercepteur sur les requêtes HTTP
+     *      ID_BEAN (implémente IInterceptor) => str_reg_exp_uri
+     * 
+     * @param array $filtersMapping
+     */
     public function addFiltersMapping(array $filtersMapping) {
         $this->filtersMapping = array_merge($this->filtersMapping, $filtersMapping);
     }
@@ -157,9 +173,47 @@ class WebAppIoC extends SuperIoC {
         return isset($this->exceptionsMapping[$exceptionClassName]) ? $this->exceptionsMapping[$exceptionClassName] : null;
     }
 
+    /**
+     * Ajout des mappers sur les exceptions
+     *      nom_de_la_classe_exception => nom_de_la_classe (implémente IExceptionMapper)
+     * 
+     * @param array $exceptionsMapping
+     */
     public function addExceptionsMapping(array $exceptionsMapping) {
         $this->exceptionsMapping = array_merge($this->exceptionsMapping, $exceptionsMapping);
     }
 
+    public function getRequestParsers() {
+        return $this->requestParsers;
+    }
+
+    /**
+     * Ajout des parser pour analyser le contenu des requête HTTP
+     *      contentType => nom_de_la_classe (implémente IRequestParser)
+     * 
+     * @param array $requestParsers
+     */
+    public function addRequestParsers(array $requestParsers) {
+        $this->requestParsers = array_merge($this->requestParsers,  $requestParsers);
+    }
+    
+    /**
+     * Retourne le nom de la classe qui implémente le IRequestParser pour analye le contenu de la requête HTTP
+     * Par défaut, on retourne "defaultParserClassName"
+     * 
+     * @param string $contentType
+     * @return string
+     */
+    public function getRequestParser($contentType){
+        return isset($this->requestParsers[$contentType]) ? $this->requestParsers[$contentType] : $this->defaultParserClassName;
+    }
+    
+    public function getDefaultParserClassName() {
+        return $this->defaultParserClassName;
+    }
+
+    public function setDefaultParserClassName($defaultParserClassName) {
+        $this->defaultParserClassName = $defaultParserClassName;
+    }
 }
 
