@@ -36,7 +36,7 @@ Installer avec composer
 * Annotations basé sur doctrine annotations
 
 ## Création d'un ressource
-...
+...e
 
 ## Gérer un contenu de requête
 ...
