@@ -63,6 +63,10 @@ class HttpResponse {
         return new HttpResponse(200);
     }
     
+    public function hasEntity(){
+        return $this->entity !== null;
+    }
+    
     public function getCode() {
         return $this->code;
     }

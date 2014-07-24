@@ -30,7 +30,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             'REQUEST_URI' => '/rest/cr1/aa/bb'
         );
         $requete = new HttpRequest($server);
-        $ioc->getBean('Huge\Rest\Api')->findRoute($requete);
+        $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertFalse($ioc->getBean('Huge\Rest\Api')->getRoute()->isInit());        
     }
@@ -54,7 +54,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             'REQUEST_URI' => '/person/contrats'
         );
         $requete = new HttpRequest($server);
-        $ioc->getBean('Huge\Rest\Api')->findRoute($requete);
+        $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertTrue($ioc->getBean('Huge\Rest\Api')->getRoute()->isInit());        
     }
@@ -79,7 +79,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             'REQUEST_URI' => '/services/person/contrats'
         );
         $requete = new HttpRequest($server);
-        $ioc->getBean('Huge\Rest\Api')->findRoute($requete);
+        $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertNotNull($ioc->getBean('Huge\Rest\Api')->getRoute());     
     }
@@ -101,6 +101,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         $routes = $ioc->getBean('Huge\Rest\Api')->getRoutes();
         $this->assertCount(3, $routes);
         
+        
         /**
          *[idBean] => Huge\Rest\Resources\Person
             [classResource] => Huge\Rest\Resources\Person
@@ -112,9 +113,10 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
                     [1] => HEAD
                 )
 
-            [contentTypes] => 
+            [consumes] => 
+            [produces] =>
          */
-        $this->assertArrayHasKey('ea964534a8049ac6f34133e9e5e7decb', $routes);
+        $this->assertArrayHasKey('8bb913007d0239d6a3fc3afc34cc15f1', $routes);
         
         /**
          * [idBean] => Huge\Rest\Resources\Person
@@ -127,13 +129,15 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
                     [1] => HEAD
                 )
 
-            [contentTypes] => Array
+            [consumes] => Array
                 (
                     [0] => application/json
                 )
 
+            [produces] =>
+
          */
-        $this->assertArrayHasKey('8287e9f68a00f1039944ae9f9ab81318', $routes);
+        $this->assertArrayHasKey('7094bd55ad76be24e9e21267e0b26128', $routes);
         
         /**
          *[idBean] => Huge\Rest\Resources\Person
@@ -147,13 +151,15 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
                     [2] => POST
                 )
 
-            [contentTypes] => Array
+            [consumes] => Array
                 (
                     [0] => application/json
                 )
 
+            [produces] =>
+
          */
-        $this->assertArrayHasKey('36f9eea8db2b822010ab3f19fb19e3b2', $routes);
+        $this->assertArrayHasKey('c798474fb40a5d785b1db715571044f8', $routes);
         
     }
 }

@@ -52,6 +52,13 @@ class Route {
     private $method;
     
     /**
+     * Liste des types mime que la ressource peut produire
+     * 
+     * @var array
+     */
+    private $produces;
+    
+    /**
      *
      * @var array 
      */
@@ -78,6 +85,7 @@ class Route {
         $this->method = $values['method'];
         $this->matches = $values['matches'];
         $this->idBean = $values['idBean'];
+        $this->produces = $values['produces'];
     }
     
     public function isInit() {
@@ -111,8 +119,10 @@ class Route {
     public function getIdBean() {
         return $this->idBean;
     }
-
-
+    
+    public function getProduces() {
+        return $this->produces;
+    }
 
 }
 

@@ -35,13 +35,17 @@ class WebAppIoC extends SuperIoC {
      */
     private $exceptionsMapping;
     
-    private $defaultParserClassName;
+    /**
+     *
+     * @var array
+     */
+    private $bodyReaders;
     
     /**
      *
      * @var array
      */
-    private $requestParsers;
+    private $bodyWriters;
     
     /**
      * Vrai si le conteneur a déjà été initialisé
@@ -55,8 +59,8 @@ class WebAppIoC extends SuperIoC {
 
         $this->isStarted = false;
         $this->filtersMapping = array();
-        $this->requestParsers = array();
-        $this->defaultParserClassName = 'Huge\Rest\Parsers\JsonParser';
+        $this->bodyReaders = array();
+        $this->bodyWriters = array();
         $this->exceptionsMapping = array(
             'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
         );
@@ -184,36 +188,47 @@ class WebAppIoC extends SuperIoC {
     }
 
     public function getRequestParsers() {
-        return $this->requestParsers;
+        return $this->bodyReaders;
     }
 
     /**
      * Ajout des parser pour analyser le contenu des requête HTTP
-     *      contentType => nom_de_la_classe (implémente IRequestParser)
+     *      contentType(MIME Type) => nom_de_la_classe (implémente IBodyReader)
      * 
-     * @param array $requestParsers
+     * @param array $bodyReaders
      */
-    public function addRequestParsers(array $requestParsers) {
-        $this->requestParsers = array_merge($this->requestParsers,  $requestParsers);
+    public function addBodyReaders(array $bodyReaders) {
+        $this->bodyReaders = array_merge($this->bodyReaders,  $bodyReaders);
     }
     
     /**
-     * Retourne le nom de la classe qui implémente le IRequestParser pour analye le contenu de la requête HTTP
-     * Par défaut, on retourne "defaultParserClassName"
+     * Retourne le nom de la classe qui implémente le IBodyReader pour analye le contenu de la requête HTTP
      * 
      * @param string $contentType
      * @return string
      */
-    public function getRequestParser($contentType){
-        return isset($this->requestParsers[$contentType]) ? $this->requestParsers[$contentType] : $this->defaultParserClassName;
+    public function getBodyReader($contentType){
+        return isset($this->bodyReaders[$contentType]) ? $this->bodyReaders[$contentType] : null;
     }
     
-    public function getDefaultParserClassName() {
-        return $this->defaultParserClassName;
+    /**
+     *  Retourne le nom de la classe qui implémente IBodyWriter
+     * 
+     * @param string $mimeType
+     * @return string
+     */
+    public function getBodyWriter($mimeType) {
+        return isset($this->bodyWriters[$mimeType]) ? $this->bodyWriters[$mimeType] : null;
     }
 
-    public function setDefaultParserClassName($defaultParserClassName) {
-        $this->defaultParserClassName = $defaultParserClassName;
+    /**
+     * Merge les bodyWriters
+     *      TypeMime => nom_de_la_classe (implémente IBodyWriter)
+     * 
+     * @param array $bodyWriters
+     */
+    public function addBodyWriters(array $bodyWriters) {
+        $this->bodyWriters = array_merge($this->bodyWriters, $bodyWriters);
     }
 }
 

@@ -6,7 +6,8 @@ class JsonHttpResponse extends HttpResponse{
 
     public function __construct() {
         parent::__construct();
-        $this->setContentType('application/json');
+        
+        $this->contentTypeJson();
     }
     
     public function setEntity($entity) {

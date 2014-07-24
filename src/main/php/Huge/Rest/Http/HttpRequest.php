@@ -13,12 +13,14 @@ class HttpRequest {
     private $server;
     private $body;
     private $entity;
+    private $accepts;
 
     public function __construct($server = array()) {
         $this->server = $server;
         $this->headers = $this->_getallheaders($server);
         $this->body = null;
         $this->entity = null;
+        $this->accepts = null;
     }
 
     private function _getallheaders($server) {
@@ -33,6 +35,24 @@ class HttpRequest {
         }
         
         return $headers;
+    }
+    
+    /**
+     * Retourne la liste des accept (mode lazy)
+     * 
+     * @return array
+     */
+    public function getAccepts(){
+        if($this->accepts === null){
+            $matchesAccepts = array();
+             if(preg_match("#[^;]+#", $this->getHeader('Accept'), $matchesAccepts)){
+                 $this->accepts = explode(',', $matchesAccepts[0]);
+             }else{
+                 $this->accepts = array();
+             }
+        }
+        
+        return $this->accepts;
     }
     
     /**
@@ -93,5 +113,7 @@ class HttpRequest {
     public function setEntity($entity) {
         $this->entity = $entity;
     }
+    
+    
 }
 

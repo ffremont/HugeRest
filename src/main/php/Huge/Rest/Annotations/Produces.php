@@ -4,15 +4,14 @@ namespace Huge\Rest\Annotations;
 
 /**
 * @Annotation
-* @Target({"CLASS", "METHOD"})
+* @Target({"CLASS","METHOD"})
 */
-final class Consumes {
+final class Produces {
 
     public $value;
-    
+
     public function __construct($values = array()) {
         $this->value    = $values['value'];
     }
-
 }
 
