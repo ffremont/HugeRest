@@ -34,5 +34,24 @@ Installer avec composer
 * Gestion d'intercepteurs sur les requêtes : implémentation de Huge\Rest\Process\IInterceptor
 * Cache : basé sur doctrine cache
 * Annotations basé sur doctrine annotations
-* 
+
+## Création d'un ressource
+...
+
+## Gérer un contenu de requête
+...
+
+## Gérer un contenu de réponse
+...
+
+## Filtrer les requêtes
+...
+
+## Intercepter les traitements REST
+...
+
+## Personnaliser les erreurs
+...
+
+
 (en cours)
