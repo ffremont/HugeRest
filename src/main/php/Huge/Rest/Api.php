@@ -6,6 +6,7 @@ use Huge\IoC\Annotations\Component;
 use Huge\IoC\Annotations\Autowired;
 use Doctrine\Common\Cache\Cache;
 use Huge\Rest\Http\HttpRequest;
+use Huge\Rest\Http\HttpResponse;
 use Huge\Rest\Routing\Route;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Huge\IoC\Utils\IocArray;
@@ -164,7 +165,7 @@ class Api {
                 continue;
             }
 
-            if ( is_array($route['consumes']) &&  is_array($request->getAccepts())) {
+            if (is_array($route['consumes']) && is_array($request->getAccepts())) {
                 $aIntersectAccept = array_intersect($route['consumes'], $request->getAccepts());
                 if (!empty($route['consumes']) && empty($aIntersectAccept)) {
                     continue;
@@ -202,7 +203,7 @@ class Api {
      * @return string
      */
     private function _extractClassProduce() {
-        $outputMimeType = 'application/json';
+        $outputMimeType = HttpResponse::DEFAULT_CONTENT_TYPE;
         if ($this->route->getProduces() !== null) {
             $produces = $this->route->getProduces();
             $firstProduce = $produces[0];
@@ -215,7 +216,7 @@ class Api {
             }
         }
 
-        return $this->webAppIoC->getBodyWriter($outputMimeType);
+        return $outputMimeType;
     }
 
     /**
@@ -267,12 +268,14 @@ class Api {
 
             // Write entity
             if ($httpResponse->hasEntity()) {
-                $bodyWriterClassName = $this->_extractClassProduce();
+                $outputMimeType = $this->_extractClassProduce();
+                $bodyWriterClassName = $this->webAppIoC->getBodyWriter($outputMimeType);
                 if (IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
                     $this->logger->warn('Writing de la réponse HTTP impossible car la classe "' . $bodyWriterClassName . '" n\'implémente pas Huge\Rest\Process\IBodyWriter');
                 }
+                $httpResponse->setContentType($outputMimeType);
             }
         } catch (\Exception $e) {
             $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));

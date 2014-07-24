@@ -4,6 +4,8 @@ namespace Huge\Rest\Http;
 
 class HttpResponse {
 
+    const DEFAULT_CONTENT_TYPE = 'application/json';
+    
     protected $code;
     protected $body;
     private $headers;
@@ -57,6 +59,8 @@ class HttpResponse {
         $this->body = null;
         $this->headers = array();
         $this->entity = null;
+        
+        $this->setContentType(self::DEFAULT_CONTENT_TYPE);
     }
     
     public static function ok(){
