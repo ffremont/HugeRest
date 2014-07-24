@@ -37,12 +37,13 @@ Installer avec composer
 * Annotations basé sur doctrine annotations
 
 ## Création d'une ressource
+* Une ressource REST se matérialise par une classe PHP annotée. C'est un composant au sens Huge\IoC.
 * Utilisation des annotations :
     * @Resource obligatoire
     * @Path facultatif
     * @Consumes facultatif
     * @Produces facultatif
-...
+
 
 ## Gérer un contenu de requête
 * Pour gérer les types mime des requêtes HTTP vous avez la possibilité d'implémenter vos propres "IBodyReader"
@@ -69,8 +70,25 @@ $ioc->addBodyWriters(array(
 ```
 * Liste des readers disponibles
     * Huge\Rest\Process\Writers\JsonWriter : encode $entity avec json_encode
+    * Huge\Rest\Process\Writers\FormWriter : encode $entity avec urlencode
+    * Huge\Rest\Process\Writers\TextWriter : caste en stirng
+    
+
 ## Filtrer les requêtes
-...
+* Les filtres permettent d'exercer des contrôles avant les traitements REST. Un filtre est un composant au sens Huge\IoC.
+* Interface à implémenter : Huge\Rest\Process\IFilter
+```php
+$ioc = new \Huge\Rest\WebAppIoC('1.0');
+$ioc->addDefinitions(array(
+    array(
+        'class' => 'MyWebApi\Security\Authorization',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    )
+));
+$ioc->addFiltersMapping(array(
+    'MyWebApi\Security\Authorization' => '.*' /* applique le filtre sur toutes les ressources */
+));
+```
 
 ## Intercepter les traitements REST
 ...
@@ -80,5 +98,7 @@ $ioc->addBodyWriters(array(
 - Enregistrement du mapping "Nom de l'exception" => "Nom de la classe qui implémente"
 ...
 
+## Ordonnancement
+* 
 
 (en cours)
