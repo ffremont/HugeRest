@@ -71,7 +71,7 @@ $ioc->addBodyWriters(array(
 * Liste des readers disponibles
     * Huge\Rest\Process\Writers\JsonWriter : encode $entity avec json_encode
     * Huge\Rest\Process\Writers\FormWriter : encode $entity avec urlencode
-    * Huge\Rest\Process\Writers\TextWriter : caste en stirng
+    * Huge\Rest\Process\Writers\TextWriter : caste en string
     
 
 ## Filtrer les requêtes
@@ -116,6 +116,18 @@ $ioc->addExceptionsMapping(array(
     * 'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
 
 ## Ordonnancement
-* 
+* Analyse de la requête HTTP
+    * à partir du composant Huge\Rest\Http\HttpRequest
+    * détermination d'une route : Huge\Rest\Routing\Route (composant)
+    * si aucune route n'existe, lancement de Huge\Rest\Exceptions\NotFoundException
+* Analyse du contenu de la requête (POST ou PUT)
+    * utilisation des IBodyReader
+* Exécution des Huge\Rest\Process\IFilter
+* Exécution de la fonction start des intercepteurs Huge\Rest\Process\IInterceptor
+* EXECUTION DU TRAITEMENT LIE A LA RESSOURCE
+* Exécution de la fonction end des intercepteurs Huge\Rest\Process\IInterceptor
+* Détermination du contentType à appliquer dans la réponse HTTP
+    * utilisation des IBodyWriter
+* Construction de la réponse : Huge\Rest\Http\HttpResponse (fonction build)
 
-(en cours)
+
