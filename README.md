@@ -91,12 +91,29 @@ $ioc->addFiltersMapping(array(
 ```
 
 ## Intercepter les traitements REST
-...
+* Pour différentes raisons vous aurez besoin de connaître le début et la fin des traitements de votre API. Un intercepteur est un composant au sens Huge\IoC.
+* Interface à implémenter : Huge\Rest\Process\IInterceptor
+```php
+$ioc = new \Huge\Rest\WebAppIoC('1.0');
+$ioc->addDefinitions(array(
+    array(
+        'class' => 'MyWebApi\Interceptors\Custom',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    )
+));
+```
 
 ## Personnaliser les erreurs
-- Interface à implémenter : Huge\Rest\Process\IExceptionMapper
-- Enregistrement du mapping "Nom de l'exception" => "Nom de la classe qui implémente"
-...
+* Votre webapp va pouvoir emettre des exceptions qu'il va falloir convertir en réponse HTTP. Pour réaliser cela, il va être nécessaire d'enregistrer des couples selon le format : "Nom de l'exception" => "Nom de la classe qui implémente".
+* Interface à implémenter : Huge\Rest\Process\IExceptionMapper
+```php
+$ioc = new \Huge\Rest\WebAppIoC('1.0');
+$ioc->addExceptionsMapping(array(
+    'LogicException' => 'MyWebApi\Exceptions\LogicMapper'
+));
+```
+* Liste des mappers :
+    * 'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
 
 ## Ordonnancement
 * 
