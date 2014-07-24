@@ -35,13 +35,20 @@ Installer avec composer
 * Cache : basé sur doctrine cache
 * Annotations basé sur doctrine annotations
 
-## Création d'un ressource
-...e
+## Création d'une ressource
+* Utilisation des annotations :
+    * @Resource obligatoire
+    * @Path facultatif
+    * @Consumes facultatif
+    * @Produces facultatif
+...
 
 ## Gérer un contenu de requête
+Interface à implémenter : Huge\Rest\Process\IBodyReader
 ...
 
 ## Gérer un contenu de réponse
+Interface à implémenter : Huge\Rest\Process\IBodyWriter
 ...
 
 ## Filtrer les requêtes
@@ -51,6 +58,8 @@ Installer avec composer
 ...
 
 ## Personnaliser les erreurs
+- Interface à implémenter : Huge\Rest\Process\IExceptionMapper
+- Enregistrement du mapping "Nom de l'exception" => "Nom de la classe qui implémente"
 ...
 
 
