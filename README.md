@@ -2,6 +2,7 @@ HugeRest
 ========
 
 Framework PHP pour créer simplement, rapidement et efficacement une webapp REST
+Exemple : https://github.com/ffremont/HugeRest-samples
 
 ##Installation
 Installer avec composer
