@@ -155,7 +155,7 @@ class Api {
     }
 
     /**
-     * Retourne une route à partir de la requête HTTP
+     * Traite la requête HTTP
      * 
      * @return \Huge\Rest\Routing\Route
      */
@@ -212,7 +212,7 @@ class Api {
                 $outputMimeType = $firstProduce;
             } else {
                 $intersect = array_intersect($produces, $accepts);
-                $outputMimeType = empty($intersect) ? $firstProduce : $intersect[0];
+                $outputMimeType = empty($intersect) ? $firstProduce : array_shift($intersect);
             }
         }
 
