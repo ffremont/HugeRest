@@ -59,8 +59,16 @@ class WebAppIoC extends SuperIoC {
 
         $this->isStarted = false;
         $this->filtersMapping = array();
-        $this->bodyReaders = array();
-        $this->bodyWriters = array();
+        $this->bodyReaders = array(
+            'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Readers\FormReader',
+            'application/json' => 'Huge\Rest\Process\Readers\JsonReader',
+            'text/plain' => 'Huge\Rest\Process\Readers\TextReader'
+        );
+        $this->bodyWriters = array(
+            'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Writers\FormWriter',
+            'application/json' => 'Huge\Rest\Process\Writers\JsonWriter',
+            'text/plain' => 'Huge\Rest\Process\Writers\TextWriter'
+        );
         $this->exceptionsMapping = array(
             'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
         );
