@@ -45,13 +45,30 @@ Installer avec composer
 ...
 
 ## Gérer un contenu de requête
-Interface à implémenter : Huge\Rest\Process\IBodyReader
-...
+* Pour gérer les types mime des requêtes HTTP vous avez la possibilité d'implémenter vos propres "IBodyReader"
+* Interface à implémenter : Huge\Rest\Process\IBodyReader
+```php
+$ioc = new \Huge\Rest\WebAppIoC('1.0');
+$ioc->addBodyReaders(array(
+    'application/vnd.github.v1+json' => 'Huge\Rest\Process\Readers\JsonReader'
+));
+```
+* Liste des readers disponibles
+    * Huge\Rest\Process\Readers\JsonReader : décode le body avec json_decode 
+    * Huge\Rest\Process\Readers\FormReader : décode le body avec urldecode
+    * Huge\Rest\Process\Readers\TextReader : aucun traitement
 
 ## Gérer un contenu de réponse
-Interface à implémenter : Huge\Rest\Process\IBodyWriter
-...
-
+* Une fonction d'une ressource retourne une instance de l'objet Huge\Rest\Http\HttpResponse. Cette dernière peut avoir l'attribut "entity" de valorisé qui sera à convertir en fonction du contentType souhaité de la réponse HTTP.
+* Interface à implémenter : Huge\Rest\Process\IBodyWriter
+```php
+$ioc = new \Huge\Rest\WebAppIoC('1.0');
+$ioc->addBodyWriters(array(
+    'application/vnd.github.v1+json' => 'Huge\Rest\Process\Writers\JsonWriter'
+));
+```
+* Liste des readers disponibles
+    * Huge\Rest\Process\Writers\JsonWriter : encode $entity avec json_encode
 ## Filtrer les requêtes
 ...
 
