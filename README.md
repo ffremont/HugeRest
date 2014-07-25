@@ -142,7 +142,7 @@ $ioc->addExceptionsMapping(array(
     * utilisation des IBodyWriter
 * Construction de la réponse : Huge\Rest\Http\HttpResponse (fonction build)
 
-## Limitation
+## Limitations
 * La gestion des erreurs ne permet pas d'exploiter l'héritage des exceptions
 * Logger log4php
 * Basé sur Huge\IoC
