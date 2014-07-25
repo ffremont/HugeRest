@@ -15,6 +15,17 @@ Installer avec composer
     }
 ```
 
+.htaccess :
+```apache
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ index.php [QSA,L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+```
+
 ```php
   $loader = require(__DIR__.'/../../../vendor/autoload.php');
   
