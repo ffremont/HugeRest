@@ -1,10 +1,10 @@
 <?php
 
-namespace Huge\Rest\Samples;
+namespace MyWebApi\Resources;
 
 use Guzzle\Http as GuzzleHttp;
 
-class ApiTestInteg extends \PHPUnit_Framework_TestCase {
+class PersonTestInteg extends \PHPUnit_Framework_TestCase {
 
     public function __construct() {
         parent::__construct();
@@ -14,7 +14,7 @@ class ApiTestInteg extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function not_found() {
-        $client = new GuzzleHttp\Client($GLOBALS['variables']['remote.integrationTest.url']);
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
         
         $status = null;
         try{
@@ -30,7 +30,7 @@ class ApiTestInteg extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function get_person_badAccept() {
-        $client = new GuzzleHttp\Client($GLOBALS['variables']['remote.integrationTest.url']);
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
         
         $status = null;
         try{
@@ -46,17 +46,20 @@ class ApiTestInteg extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function get_person_ok() {
-        $client = new GuzzleHttp\Client($GLOBALS['variables']['remote.integrationTest.url']);
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
         
         $status = null;
+        $response = null;
+        $expectedJson = '{"id":"azerty2"}';
         try{
-            $response = $client->get('/person/azerty1')->setHeader('accept', 'application/vnd.person.v1+json')->send();
+            $response = $client->get('/person/azerty2')->setHeader('accept', 'application/vnd.person.v1+json')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
-            $this->fail();
+            $this->fail($e->getMessage());
         }
         
         $this->assertEquals(200, $status);
+        $this->assertEquals($expectedJson, $response->getBody(true));
     }
 
 }

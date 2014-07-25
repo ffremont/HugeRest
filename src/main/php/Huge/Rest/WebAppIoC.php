@@ -86,7 +86,8 @@ class WebAppIoC extends SuperIoC {
             'text/plain' => 'Huge\Rest\Process\Writers\TextWriter'
         );
         $this->exceptionsMapping = array(
-            'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
+            'Huge\Rest\Exceptions\NotFoundResourceException' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper',
+            'Huge\Rest\Exceptions\BadImplementationException' => 'Huge\Rest\Exceptions\Mappers\BadImplementationExceptionMapper'
         );
         $this->apiCacheImpl = null;
         $this->logger = \Logger::getLogger(__CLASS__);

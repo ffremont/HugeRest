@@ -2,7 +2,7 @@
 
 namespace Huge\Rest\Exceptions;
 
-class NotFoundException extends \Exception {
+class NotFoundResourceException extends \Exception {
     
     /**
      *

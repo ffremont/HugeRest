@@ -10,7 +10,8 @@ use Huge\Rest\Http\HttpResponse;
 use Huge\Rest\Routing\Route;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Huge\IoC\Utils\IocArray;
-use Huge\Rest\Exceptions\NotFoundException;
+use Huge\Rest\Exceptions\NotFoundResourceException;
+use Huge\Rest\Exceptions\BadImplementationException;
 
 /**
  * @Component
@@ -241,7 +242,7 @@ class Api {
 
         try {
             if (!$this->route->isInit()) {
-                throw new NotFoundException($this->request->getUri());
+                throw new NotFoundResourceException($this->request->getUri());
             }
 
             // analyse le contenu pour le parser
@@ -250,7 +251,7 @@ class Api {
                 if (IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
                     $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request->getBody())));
                 } else {
-                    $this->logger->warn('Parsing de la requête HTTP impossible car la classe "' . $bodyReaderClassName . '" n\'implémente pas Huge\Rest\Process\IBodyReader');
+                    throw new BadImplementationException($bodyReaderClassName, 'Huge\Rest\Process\IBodyReader', 'Lecture de la requête impossible');                    
                 }
             }
 
@@ -284,7 +285,7 @@ class Api {
                 if (IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
-                    $this->logger->warn('Writing de la réponse HTTP impossible car la classe "' . $bodyWriterClassName . '" n\'implémente pas Huge\Rest\Process\IBodyWriter');
+                    throw new BadImplementationException($bodyWriterClassName, 'Huge\Rest\Process\IBodyWriter', 'Ecriture de la réponse impossible');
                 }
                 $httpResponse->setContentType($outputMimeType);
             }
@@ -293,6 +294,7 @@ class Api {
             $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : $exceptionMapperClassName;
 
             $impls = $exceptionMapperClassName !== null ? class_implements($exceptionMapperClassName) : array();
+            // @TODO gérer héritage des exceptions
             if (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls)) {
                 $httpResponse = call_user_func_array($exceptionMapperClassName . '::map', array($e));
             } else {
