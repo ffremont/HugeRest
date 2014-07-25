@@ -142,3 +142,6 @@ $ioc->addExceptionsMapping(array(
 * Construction de la réponse : Huge\Rest\Http\HttpResponse (fonction build)
 
 
+## Tests
+* Tests unitaires : phpunit -c src/test/resources/phpunit.xml --testsuite TU
+* Tests d'intégration avec apache2 sur src/test/webapp : phpunit -c src/test/resources/phpunit.xml --testsuite IT
