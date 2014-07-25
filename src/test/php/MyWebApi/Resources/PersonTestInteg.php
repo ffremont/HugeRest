@@ -67,6 +67,26 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
+    public function head_person_ok() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+        
+        $status = null;
+        /* @var $response GuzzleHttp\Message\Response */
+        $response = null;
+        try{
+            $response = $client->head('/person/azerty2')->setHeader('accept', 'application/vnd.person.v1+json')->send();
+            $status = $response->getStatusCode();
+        }catch(\Exception $e){
+            $this->fail($e->getMessage());
+        }
+        
+        $this->assertEquals(200, $status);
+        $this->assertEquals('application/vnd.person.v1+json', $response->getContentType());
+    }
+    
+    /**
+     * @test
+     */
     public function get_ping_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
         

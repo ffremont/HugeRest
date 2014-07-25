@@ -48,9 +48,7 @@ class Person {
      * @Consumes({"text/plain"})
      * @Produces({"text/plain"})
      */
-    public function ping() {
-        $this->logger->debug('ping');
-        
+    public function ping() {        
         return HttpResponse::ok();
     }
 
