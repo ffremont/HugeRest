@@ -1,4 +1,4 @@
-HugeRest
+HugeRest (EN COURS)
 ========
 
 Framework PHP pour créer simplement, rapidement et efficacement une webapp REST
@@ -130,7 +130,7 @@ $ioc->addExceptionsMapping(array(
 * Analyse de la requête HTTP
     * à partir du composant Huge\Rest\Http\HttpRequest
     * détermination d'une route : Huge\Rest\Routing\Route (composant)
-    * si aucune route n'existe, lancement de Huge\Rest\Exceptions\NotFoundException
+    * si aucune route n'existe, lancement de Huge\Rest\Exceptions\NotFoundResourceException
 * Analyse du contenu de la requête (POST ou PUT)
     * utilisation des IBodyReader
 * Exécution des Huge\Rest\Process\IFilter
