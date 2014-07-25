@@ -102,7 +102,17 @@ class HttpResponse {
         return $this;
     }
     
+    /**
+     * @deprecated 
+     * 
+     * @param int $code
+     * @return \Huge\Rest\Http\HttpResponse
+     */
     public static function code($code) {
+        return new HttpResponse($code);
+    }
+    
+    public static function status($code) {
         return new HttpResponse($code);
     }
 
