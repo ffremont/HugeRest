@@ -7,7 +7,10 @@
     convertWarningsToExceptions="true"
     stopOnFailure="true"
 >
-    <testsuite name="Rest">
+    <testsuite name="tests_unitaires">
         <directory suffix="Test.php" phpVersion="5.3.3" phpVersionOperator=">=">../php/</directory>
+    </testsuite>
+    <testsuite name="tests_integration">
+        <directory suffix="TestInteg.php" phpVersion="5.3.3" phpVersionOperator=">=">../php/</directory>
     </testsuite>
 </phpunit>

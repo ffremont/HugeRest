@@ -69,12 +69,23 @@ class Api {
      * @var \Logger
      */
     private $logger;
+    
+    /**
+     * Liste des tokens utilisable dans les path des ressources
+     * 
+     * @var array
+     */
     private static $TOKENS = array(
         ':string' => '([a-zA-Z]+)',
         ':number' => '([0-9]+)',
         ':alpha' => '([a-zA-Z0-9-_]+)'
     );
 
+    /**
+     * 
+     * @param string $contextRoot 
+     * @param \Doctrine\Common\Cache\Cache $cache
+     */
     public function __construct($contextRoot = '', $cache = null) {
         $this->contextRoot = trim($contextRoot, '/');
         $this->cacheImpl = $cache;
@@ -189,11 +200,11 @@ class Api {
             }
 
             if ($this->route->isInit()) {
-                return true;
+                return;
             }
         }
 
-        return false;
+        return;
     }
 
     /**

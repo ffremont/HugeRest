@@ -14,13 +14,15 @@ class HttpRequest {
     private $body;
     private $entity;
     private $accepts;
+    private $get;
 
-    public function __construct($server = array()) {
+    public function __construct($server = array(), $get = array()) {
         $this->server = $server;
         $this->headers = $this->_getallheaders($server);
         $this->body = null;
         $this->entity = null;
         $this->accepts = null;
+        $this->get = array();
     }
 
     private function _getallheaders($server) {
@@ -114,6 +116,23 @@ class HttpRequest {
         $this->entity = $entity;
     }
     
+    public function getGet() {
+        return $this->get;
+    }
+
+    public function setGet($get) {
+        $this->get = $get;
+    }
+    
+    /**
+     * Retourne un paramètre GET
+     * 
+     * @param string $name
+     * @return mixed
+     */
+    public function getParamGet($name){
+        return isset($this->get[$name]) ? $this->get[$name] : null;
+    }
     
 }
 

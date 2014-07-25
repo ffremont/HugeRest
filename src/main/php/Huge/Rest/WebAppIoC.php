@@ -9,6 +9,11 @@ use Huge\IoC\Scope;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Annotations\AnnotationReader;
 
+/**
+ * Conteneur IoC permettant de gérer l'exposition REST
+ * 
+ * @see https://github.com/ffremont/HugeRest
+ */
 class WebAppIoC extends SuperIoC {
 
     /**
@@ -17,6 +22,11 @@ class WebAppIoC extends SuperIoC {
      * @var \Doctrine\Common\Cache\Cache
      */
     private $apiCacheImpl;
+    
+    /**
+     *
+     * @var \Logger
+     */
     private $logger;
 
     /**
@@ -36,12 +46,14 @@ class WebAppIoC extends SuperIoC {
     private $exceptionsMapping;
     
     /**
-     *
+     * Liste des IBodyReader
+     * 
      * @var array
      */
     private $bodyReaders;
     
     /**
+     * Liste des IBodyWriter
      *
      * @var array
      */
@@ -54,6 +66,10 @@ class WebAppIoC extends SuperIoC {
      */
     private $isStarted;
 
+    /**
+     * 
+     * @param string $version permet de rafraichir le cache lors des montées de versions
+     */
     public function __construct($version = '') {
         parent::__construct($version);
 
@@ -81,14 +97,10 @@ class WebAppIoC extends SuperIoC {
             ),
             array(
                 'class' => 'Huge\Rest\Http\HttpRequest',
-                'factory' => new ConstructFactory(array($_SERVER))
+                'factory' => new ConstructFactory(array($_SERVER, $_GET))
             ),
             array(
                 'class' => 'Huge\Rest\Routing\Route',
-                'factory' => SimpleFactory::getInstance()
-            ),
-            array(
-                'class' => 'Huge\Rest\Interceptors\PerfInterceptor',
                 'factory' => SimpleFactory::getInstance()
             )
         ));
