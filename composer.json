@@ -19,7 +19,7 @@
         "doctrine/annotations": "v1.2.0",
         "doctrine/cache" : "v1.3.0",
         "huge/ioc": "dev-master",
-        "guzzlehttp/guzzle": "~4.0"
+        "guzzlehttp/guzzle": "3.8.1"
     },
     "autoload": {
         "psr-0": {"Huge\\Rest\\": "src/main/php/"}
