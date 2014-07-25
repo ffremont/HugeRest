@@ -117,6 +117,7 @@ $ioc->addDefinitions(array(
 ## Personnaliser les erreurs
 * Votre webapp va pouvoir emettre des exceptions qu'il va falloir convertir en réponse HTTP. Pour réaliser cela, il va être nécessaire d'enregistrer des couples selon le format : "Nom de l'exception" => "Nom de la classe qui implémente".
 * Interface à implémenter : Huge\Rest\Process\IExceptionMapper
+* Il est possible de définir un mapper d'exceptions par défaut "Exception" => "MonMapper"
 ```php
 $ioc = new \Huge\Rest\WebAppIoC('1.0');
 $ioc->addExceptionsMapping(array(
@@ -141,6 +142,10 @@ $ioc->addExceptionsMapping(array(
     * utilisation des IBodyWriter
 * Construction de la réponse : Huge\Rest\Http\HttpResponse (fonction build)
 
+## Limitation
+* La gestion des erreurs ne permet pas d'exploiter l'héritage des exceptions
+* Logger log4php
+* Basé sur Huge\IoC
 
 ## Tests
 * Tests unitaires : phpunit -c src/test/resources/phpunit.xml --testsuite TU
