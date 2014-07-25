@@ -49,6 +49,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
         
         $status = null;
+        /* @var $response GuzzleHttp\Message\Response */
         $response = null;
         $expectedJson = '{"id":"azerty2"}';
         try{
@@ -60,7 +61,27 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         
         $this->assertEquals(200, $status);
         $this->assertEquals($expectedJson, $response->getBody(true));
+        $this->assertEquals('application/vnd.person.v1+json', $response->getContentType());
     }
-
+    
+    /**
+     * @test
+     */
+    public function get_ping_ok() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+        
+        $status = null;
+        $response = null;
+        try{
+            $response = $client->get('/person')->setHeader('accept', 'text/plain,text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*\/*;q=0.8')->send();
+            $status = $response->getStatusCode();
+        }catch(\Exception $e){
+            $this->fail($e->getMessage());
+        }
+        
+        $this->assertEquals(200, $status);
+        $this->assertEquals('', $response->getBody(true));
+        $this->assertEquals('text/plain', $response->getContentType());
+    }
 }
 

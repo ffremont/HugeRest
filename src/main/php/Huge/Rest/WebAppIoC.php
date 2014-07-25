@@ -194,6 +194,12 @@ class WebAppIoC extends SuperIoC {
         return $this->exceptionsMapping;
     }
 
+    /**
+     * Retourne le nom de la classe mapper qui va traiter le mapping de l'exception donnée
+     * 
+     * @param string $exceptionClassName
+     * @return string
+     */
     public function getExceptionMapper($exceptionClassName) {
         return isset($this->exceptionsMapping[$exceptionClassName]) ? $this->exceptionsMapping[$exceptionClassName] : null;
     }

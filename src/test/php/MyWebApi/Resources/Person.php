@@ -33,8 +33,14 @@ class Person {
      */
     private $request;
 
+    /**
+     *
+     * @var \Logger
+     */
+    private $logger; 
+   
     public function __construct() {
-        
+        $this->logger = \Logger::getLogger(__CLASS__);
     }
 
     /**
@@ -43,6 +49,8 @@ class Person {
      * @Produces({"text/plain"})
      */
     public function ping() {
+        $this->logger->debug('ping');
+        
         return HttpResponse::ok();
     }
 

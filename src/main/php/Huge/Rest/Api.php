@@ -209,7 +209,7 @@ class Api {
     }
 
     /**
-     * Retourne le nom de la classe qui implémente IBodyWriter afin de convertir le contenu de la réponse
+     * Retourne le mime type adéquate pour la réponse.
      * La fonction tient compte des préférences "Produces" et des en-têtes "accept"
      * 
      * @return string
@@ -274,31 +274,33 @@ class Api {
 
             $httpResponse = call_user_func_array(array($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass()), $this->route->getMatches());
 
+            // Récupération du mimeType pour la répone
+            $outputMimeType = $this->_extractClassProduce();
+            $httpResponse->setContentType($outputMimeType);
+            
             foreach ($beansInterceptor as $idBeanInterceptor) {
                 $this->webAppIoC->getBean($idBeanInterceptor)->end($httpResponse);
             }
-
+            
             // Write entity
             if ($httpResponse->hasEntity()) {
-                $outputMimeType = $this->_extractClassProduce();
                 $bodyWriterClassName = $this->webAppIoC->getBodyWriter($outputMimeType);
                 if (IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
                     throw new BadImplementationException($bodyWriterClassName, 'Huge\Rest\Process\IBodyWriter', 'Ecriture de la réponse impossible');
                 }
-                $httpResponse->setContentType($outputMimeType);
+                
             }
         } catch (\Exception $e) {
             $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));
             $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : $exceptionMapperClassName;
 
             $impls = $exceptionMapperClassName !== null ? class_implements($exceptionMapperClassName) : array();
-            // @TODO gérer héritage des exceptions
             if (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls)) {
                 $httpResponse = call_user_func_array($exceptionMapperClassName . '::map', array($e));
             } else {
-                $httpResponse = Http\HttpResponse::code(500);
+                $httpResponse = Http\HttpResponse::status(500);
             }
         }
 
