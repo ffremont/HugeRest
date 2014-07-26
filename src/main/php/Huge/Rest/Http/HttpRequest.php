@@ -15,6 +15,7 @@ class HttpRequest {
     private $entity;
     private $accepts;
     private $get;
+    private $uri;
 
     public function __construct($server = array(), $get = array()) {
         $this->server = $server;
@@ -23,6 +24,14 @@ class HttpRequest {
         $this->entity = null;
         $this->accepts = null;
         $this->get = array();
+        
+        $uriTrim = trim($this->server['REQUEST_URI'], '/');
+        $matches = array();
+        if(preg_match('#[^\?]*#', $uriTrim, $matches)){
+            $this->uri = $matches[0];
+        }else{
+            $this->uri = $uriTrim;
+        }
     }
 
     private function _getallheaders($server) {
@@ -63,13 +72,12 @@ class HttpRequest {
      * @return string
      */
     public function getContextRoot(){
-        $trim = trim($this->server['REQUEST_URI'], '/');
-        $explode = explode('/', $trim);
+        $explode = explode('/', $this->uri);
         return count($explode) >= 1 ? $explode[0] : null;
     }
     
     public function getUri(){
-        return trim($this->server['REQUEST_URI'], '/');
+        return $this->uri;
     }
 
     public function getMethod() {

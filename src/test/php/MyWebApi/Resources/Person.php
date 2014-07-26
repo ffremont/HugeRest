@@ -54,7 +54,7 @@ class Person {
 
     /**
      * @Get
-     * @Path(":alpha")
+     * @Path(":number")
      */
     public function get($id = '') {
         $person = new \stdClass();
@@ -65,7 +65,7 @@ class Person {
     
     /**
      * @Delete
-     * @Path(":alpha")
+     * @Path(":number")
      */
     public function delete($id = '') {
         $person = new \stdClass();
@@ -76,7 +76,7 @@ class Person {
     
      /**
      * @Put
-     * @Path(":alpha")
+     * @Path(":number")
      */
     public function put($id = '') {
         $requestBody = (object)$this->request->getEntity();
@@ -106,6 +106,7 @@ class Person {
         for ($i = 0; $i < 5; $i++) {
             $person = new \stdClass();
             $person->id = uniqid();
+            $person->query = $query;
             $list[] = $person;
         }
         

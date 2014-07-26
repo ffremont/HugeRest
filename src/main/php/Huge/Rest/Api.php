@@ -185,7 +185,8 @@ class Api {
             }
 
             $matches = array();
-            if (preg_match('#^' . ($this->contextRoot === '' ? '' : $this->contextRoot . '/') . strtr($route['uri'], self::$TOKENS) . '$#', $request->getUri(), $matches)) {
+            $replaceTokens = strtr($route['uri'], self::$TOKENS);
+            if (preg_match('#^' . ($this->contextRoot === '' ? '' : $this->contextRoot . '/') . $replaceTokens . '$#', $request->getUri(), $matches)) {
                 array_shift($matches);
                 $this->route->init(array(
                     'resourceClass' => $route['classResource'],
@@ -237,6 +238,7 @@ class Api {
     public function run() {
         $this->loadRoutes();
         $this->processRoute($this->request);
+        
         /* @var $httpResponse \Huge\Rest\Http\HttpResponse */
         $httpResponse = null;
 
