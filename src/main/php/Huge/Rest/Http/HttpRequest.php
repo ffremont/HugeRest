@@ -16,6 +16,7 @@ class HttpRequest {
     private $accepts;
     private $get;
     private $uri;
+    
 
     public function __construct($server = array(), $get = array()) {
         $this->server = $server;
@@ -23,9 +24,9 @@ class HttpRequest {
         $this->body = null;
         $this->entity = null;
         $this->accepts = null;
-        $this->get = array();
+        $this->get = $get;
         
-        $uriTrim = trim($this->server['REQUEST_URI'], '/');
+        $uriTrim = trim($server['REQUEST_URI'], '/');
         $matches = array();
         if(preg_match('#[^\?]*#', $uriTrim, $matches)){
             $this->uri = $matches[0];
@@ -66,16 +67,6 @@ class HttpRequest {
         return $this->accepts;
     }
     
-    /**
-     * /rest/aa/oo/oo => rest
-     * 
-     * @return string
-     */
-    public function getContextRoot(){
-        $explode = explode('/', $this->uri);
-        return count($explode) >= 1 ? $explode[0] : null;
-    }
-    
     public function getUri(){
         return $this->uri;
     }
@@ -110,7 +101,7 @@ class HttpRequest {
      */
     public function getBody() {
         if($this->body === null){
-            $this->body = file_get_contents("php://input");
+            $this->body = file_get_contents('php://input');
         }
         
         return $this->body;
@@ -130,6 +121,16 @@ class HttpRequest {
 
     public function setGet($get) {
         $this->get = $get;
+    }
+    
+    /**
+     * Cache Control de la requêter
+     *
+     * @return string
+     */
+    public function getCacheControl()
+    {
+        return (string) $this->getHeader('Cache-Control');
     }
     
     /**

@@ -15,6 +15,10 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function apiFindRouteKo() {
+        $_SERVER =array( 'HTTP_HOST' => 'localhost',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/rest/cr1/aa/bb');
+        
         $ioc = new WebAppIoC('1.0');
         $ioc->addDefinitions(array(
             array(
@@ -24,21 +28,22 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         ));
         $ioc->start();
         
-        $server = array(
-            'HTTP_HOST' => 'localhost',
-            'REQUEST_METHOD' => 'GET',
-            'REQUEST_URI' => '/rest/cr1/aa/bb'
-        );
-        $requete = new HttpRequest($server);
+        $requete = new HttpRequest($_SERVER);
         $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertFalse($ioc->getBean('Huge\Rest\Api')->getRoute()->isInit());        
     }
     
      /**
-     * @test
+     * @test 
      */
     public function apiFindRouteWithoutContextRootOk() {
+        $_SERVER =  array(
+            'HTTP_HOST' => 'localhost',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/person/contrats'
+        );
+        
         $ioc = new WebAppIoC('1.0');
         $ioc->addDefinitions(array(
             array(
@@ -48,12 +53,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         ));
         $ioc->run();
         
-        $server = array(
-            'HTTP_HOST' => 'localhost',
-            'REQUEST_METHOD' => 'GET',
-            'REQUEST_URI' => '/person/contrats'
-        );
-        $requete = new HttpRequest($server);
+        $requete = new HttpRequest($_SERVER);
         $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertTrue($ioc->getBean('Huge\Rest\Api')->getRoute()->isInit());        
@@ -63,6 +63,12 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function apiFindRouteWithContextRootOk() {
+        $_SERVER = array(
+            'HTTP_HOST' => 'localhost',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/services/person/contrats'
+        );
+        
         $ioc = new WebAppIoC('1.0');
         $ioc->addDefinitions(array(
             array(
@@ -73,12 +79,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         $ioc->start();
         $ioc->getBean('Huge\Rest\Api')->setContextRoot('/services');
         
-        $server = array(
-            'HTTP_HOST' => 'localhost',
-            'REQUEST_METHOD' => 'GET',
-            'REQUEST_URI' => '/services/person/contrats'
-        );
-        $requete = new HttpRequest($server);
+        $requete = new HttpRequest($_SERVER);
         $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertNotNull($ioc->getBean('Huge\Rest\Api')->getRoute());     
@@ -88,6 +89,12 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function apiLoadRoutesOk() {
+        $_SERVER = array(
+            'HTTP_HOST' => 'localhost',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/services/person/contrats'
+        );
+        
         $ioc = new WebAppIoC('1.0');
         $ioc->addDefinitions(array(
             array(
@@ -95,12 +102,13 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
                 'factory' => SimpleFactory::getInstance()
             )
         ));
-        $ioc->run();
+        $ioc->start();
+        $ioc->getBean('Huge\Rest\Api')->loadRoutes();
         $this->assertCount(5, $ioc->getDefinitions());
         
         $routes = $ioc->getBean('Huge\Rest\Api')->getRoutes();
         $this->assertCount(3, $routes);
-        
+                
         
         /**
          *[idBean] => Huge\Rest\Resources\Person
@@ -116,7 +124,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             [consumes] => 
             [produces] =>
          */
-        $this->assertArrayHasKey('8bb913007d0239d6a3fc3afc34cc15f1', $routes);
+       $this->assertArrayHasKey('8bb913007d0239d6a3fc3afc34cc15f1', $routes);
         
         /**
          * [idBean] => Huge\Rest\Resources\Person

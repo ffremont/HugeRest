@@ -14,6 +14,12 @@ class WebAppIoCTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function iocWebAppEmptyOk() {
+        $_SERVER = array(
+            'HTTP_HOST' => 'localhost',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/services/person/contrats'
+        );
+        
         $ioc = new WebAppIoC('1.0');
         $ioc->start();
         
@@ -30,6 +36,12 @@ class WebAppIoCTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function iocWebAppRessourceOk() {
+        $_SERVER = array(
+            'HTTP_HOST' => 'localhost',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/services/person/contrats'
+        );
+        
         $ioc = new WebAppIoC('1.0');
         $ioc->addDefinitions(array(
             array(

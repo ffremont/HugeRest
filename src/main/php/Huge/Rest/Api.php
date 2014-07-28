@@ -12,6 +12,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Huge\IoC\Utils\IocArray;
 use Huge\Rest\Exceptions\NotFoundResourceException;
 use Huge\Rest\Exceptions\BadImplementationException;
+use Huge\Rest\Exceptions\InvalidResponseException;
 
 /**
  * @Component
@@ -109,6 +110,7 @@ class Api {
         $definitions = $this->webAppIoC->getDefinitions();
         foreach ($resources as $idBean) {
             $definition = $definitions[$idBean];
+            
             $classPrefix = '';
             $oRClass = new \ReflectionClass($definition['class']);
             $oPath = $annotationReader->getClassAnnotation($oRClass, 'Huge\Rest\Annotations\Path');
@@ -276,6 +278,10 @@ class Api {
 
             $httpResponse = call_user_func_array(array($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass()), $this->route->getMatches());
 
+            if($httpResponse === null){
+                throw new InvalidResponseException('La réponse HTTP ne doit pas être null');
+            }
+            
             // Récupération du mimeType pour la répone
             $outputMimeType = $this->_extractClassProduce();
             $httpResponse->setContentType($outputMimeType);

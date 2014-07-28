@@ -2,17 +2,20 @@
 
 namespace Huge\Rest;
 
+use Huge\IoC\Annotations\Component;
 use Huge\IoC\Container\SuperIoC;
 use Huge\IoC\Factory\ConstructFactory;
 use Huge\IoC\Factory\SimpleFactory;
 use Huge\IoC\Scope;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Huge\Rest\Data\IFuelValidatorFactory;
 
 /**
  * Conteneur IoC permettant de gérer l'exposition REST
  * 
  * @see https://github.com/ffremont/HugeRest
+ * @Component
  */
 class WebAppIoC extends SuperIoC {
 
@@ -65,6 +68,12 @@ class WebAppIoC extends SuperIoC {
      * @var boolean
      */
     private $isStarted;
+    
+    /**
+     *
+     * @var \Huge\Rest\Data\IFuelValidatorFactory
+     */
+    private $fuelValidatorFactory;
 
     /**
      * 
@@ -74,6 +83,7 @@ class WebAppIoC extends SuperIoC {
         parent::__construct($version);
 
         $this->isStarted = false;
+        $this->fuelValidatorFactory = null;
         $this->filtersMapping = array();
         $this->bodyReaders = array(
             'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Readers\FormReader',
@@ -256,6 +266,22 @@ class WebAppIoC extends SuperIoC {
      */
     public function addBodyWriters(array $bodyWriters) {
         $this->bodyWriters = array_merge($this->bodyWriters, $bodyWriters);
+    }
+    
+    /**
+     * 
+     * @return \Huge\Rest\Data\IFuelValidatorFactory
+     */
+    public function getFuelValidatorFactory() {
+        return $this->fuelValidatorFactory;
+    }
+
+    /**
+     * 
+     * @param \Huge\Rest\Data\IFuelValidatorFactory $fuelValidatorFactory
+     */
+    public function setFuelValidatorFactory(IFuelValidatorFactory $fuelValidatorFactory) {
+        $this->fuelValidatorFactory = $fuelValidatorFactory;
     }
 }
 
