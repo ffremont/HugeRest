@@ -127,7 +127,7 @@ class WebAppIoC extends SuperIoC {
     public function getResources() {
         $cacheKey = self::whoAmI() . md5(serialize($this->getDefinitions())) . $this->version . '_getResources';
         if ($this->apiCacheImpl !== null) {
-            $resources = $this->cacheImpl->fetch($cacheKey);
+            $resources = $this->apiCacheImpl->fetch($cacheKey);
             if ($resources !== FALSE) {
                 return $resources;
             }
@@ -144,7 +144,7 @@ class WebAppIoC extends SuperIoC {
         }
 
         if ($this->apiCacheImpl !== null) {
-            $this->cacheImpl->save($cacheKey, $resources);
+            $this->apiCacheImpl->save($cacheKey, $resources);
         }
 
         return $resources;
