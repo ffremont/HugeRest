@@ -56,6 +56,16 @@ Installer avec composer
     * @Path facultatif
     * @Consumes facultatif
     * @Produces facultatif
+    
+* Les @Path sont des regexp
+    * les chaînes trouvées sont ajoutées en paramètres de la fonction
+* Liste des tokens :
+    * ':mString' => '([a-zA-Z]+)'
+    * ':mNumber' => '([0-9]+)'
+    * ':mAlpha' => '([a-zA-Z0-9-_]+)'
+    * ':oString' => '([a-zA-Z]*)'
+    * ':oNumber' => '([0-9]*)'
+    * ':oAlpha' => '([a-zA-Z0-9-_]*)'
     * 
 ```php
 /**
