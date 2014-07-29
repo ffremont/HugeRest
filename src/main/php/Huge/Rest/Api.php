@@ -167,7 +167,10 @@ class Api {
      * @return \Huge\Rest\Routing\Route
      */
     public function processRoute(Http\HttpRequest $request) {
-        foreach ($this->routes as $route) {
+        $keys = array_keys($this->routes);
+        $count = count($keys);
+        for($i = 0; $i < $count; $i++){
+            $route = $this->routes[ $keys[$i] ];
             if (!empty($route['methods']) && !IocArray::in_array($request->getMethod(), $route['methods'])) {
                 continue;
             }
@@ -256,7 +259,9 @@ class Api {
 
             $beansFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');
             $filtersMapping = $this->webAppIoC->getFiltersMapping();
-            foreach ($beansFilter as $idBeanFilter) {
+            $filterCount = count($beansFilter);
+            for($i = 0; $i < $filterCount; $i++){
+                $idBeanFilter = $beansFilter[$i];
                 if (isset($filtersMapping[$idBeanFilter])) {
                     if (preg_match('#' . $filtersMapping[$idBeanFilter] . '#', $this->request->getUri())) {
                         $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
@@ -267,8 +272,9 @@ class Api {
                 }
             }
             $beansInterceptor = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IInterceptor');
-            foreach ($beansInterceptor as $idBeanInterceptor) {
-                $this->webAppIoC->getBean($idBeanInterceptor)->start($this->request);
+            $interceptorCount = count($beansInterceptor);
+            for($i = 0; $i < $interceptorCount; $i++){
+                $this->webAppIoC->getBean($beansInterceptor[$i])->start($this->request);
             }
 
             $httpResponse = call_user_func_array(array($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass()), $this->route->getMatches());
@@ -281,8 +287,8 @@ class Api {
             $outputMimeType = $this->_extractClassProduce();
             $httpResponse->setContentType($outputMimeType);
             
-            foreach ($beansInterceptor as $idBeanInterceptor) {
-                $this->webAppIoC->getBean($idBeanInterceptor)->end($httpResponse);
+            for($i = 0; $i < $interceptorCount; $i++){
+                $this->webAppIoC->getBean($beansInterceptor[$i])->end($httpResponse);
             }
             
             // Write entity
@@ -311,7 +317,6 @@ class Api {
             if ($this->request->getMethod() === 'HEAD') {
                 $httpResponse->build(false);
             } else {
-
                 $httpResponse->build();
             }
         }
