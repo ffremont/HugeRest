@@ -152,7 +152,7 @@ class Api {
                     'consumes' => $oConsumesMethod === null ? ($oConsumesClass === null ? null : $oConsumesClass->value) : $oConsumesMethod->value,
                     'produces' => $oProducesMethod === null ? ($oProducesClass === null ? null : $oProducesClass->value) : $oProducesMethod->value
                 );
-                $this->routes[md5(serialize($route))] = $route;
+                $this->routes[] = $route;
             }
         }
 
@@ -167,10 +167,9 @@ class Api {
      * @return \Huge\Rest\Routing\Route
      */
     public function processRoute(Http\HttpRequest $request) {
-        $keys = array_keys($this->routes);
-        $count = count($keys);
+        $count = count($this->routes);
         for($i = 0; $i < $count; $i++){
-            $route = $this->routes[ $keys[$i] ];
+            $route = $this->routes[ $i ];
             if (!empty($route['methods']) && !IocArray::in_array($request->getMethod(), $route['methods'])) {
                 continue;
             }
