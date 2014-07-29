@@ -1,4 +1,4 @@
-HugeRest (EN COURS)
+HugeRest
 ========
 
 Framework PHP pour créer simplement, rapidement et efficacement une webapp REST
@@ -302,3 +302,17 @@ $ioc->addExceptionsMapping(array(
 ## Tests
 * Tests unitaires : phpunit -c src/test/resources/phpunit.xml --testsuite TU
 * Tests d'intégration avec apache2 sur src/test/webapp : phpunit -c src/test/resources/phpunit.xml --testsuite IT
+
+## Performances
+Voici des petits tests sur ma modeste machine:
+Sans ApcCache, ni memcache
+2014-07-29 13:00 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Temps d'exécution de la requête pendant 4.28 ms
+2014-07-29 13:00 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Consommation de 3.5 mo, avec un pic à 3.77 mo
+
+Avec ApcCache, sans memcache
+2014-07-29 13:04 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Temps d'exécution de la requête pendant 3.87 ms
+2014-07-29 13:04 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Consommation de 1.6 mo, avec un pic à 1.8 mo
+
+Avec ApcCache, avec memcache
+2014-07-29 13:38 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Temps d'exécution de la requête pendant 2.48 ms
+2014-07-29 13:38 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Consommation de 1.69 mo, avec un pic à 1.89 mo
