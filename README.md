@@ -120,17 +120,22 @@ $ioc->addDefinitions(array(
 * Basé sur fuelphp validation https://github.com/fuelphp/validation
 * Il est possible de valider les données qui sont passées dans le body de la requête.
 * Interface que le modèle doit implémenter : Huge\Rest\Data\IValidator
-```php
-// dans votre classe ressource
-/**
-* @Autowired("Huge\Rest\Http\BodyReader")
-*/
-private $bodyReader;
+    ```php
+    // dans votre classe ressource
+    /**
+    * @Autowired("Huge\Rest\Http\BodyReader")
+    */
+    private $bodyReader;
+    
+    // dans votre fonction
+    $this->bodyReader->validate('...nom_de_la_classe_modele...');
+    ```
+    * Lancement de l'exception : Huge\Rest\Exceptions\ValidationException
 
-// dans votre fonction
-$this->bodyReader->validate('...nom_de_la_classe_modele...');
-```
-* Lancement de l'exception : Huge\Rest\Exceptions\ValidationException
+* Personnalisation du validateur fuelPhp \Huge\Rest\Data\IFuelValidatorFactory
+     ```php
+        $webAppIoC->setFuelValidatorFactory($votre_factory)
+    ```
 
 ## Personnaliser les erreurs
 * Votre webapp va pouvoir emettre des exceptions qu'il va falloir convertir en réponse HTTP. Pour réaliser cela, il va être nécessaire d'enregistrer des couples selon le format : "Nom de l'exception" => "Nom de la classe qui implémente".
@@ -169,6 +174,7 @@ $ioc->addExceptionsMapping(array(
 * La gestion des erreurs ne permet pas d'exploiter l'héritage des exceptions
 * Logger log4php
 * Basé sur Huge\IoC
+* Validateur basé sur fuel validation
 
 ## Tests
 * Tests unitaires : phpunit -c src/test/resources/phpunit.xml --testsuite TU
