@@ -106,7 +106,7 @@ class WebAppIoC extends SuperIoC {
         $this->addDefinitions(array(
             array(
                 'class' => 'Huge\Rest\Api',
-                'factory' => new ConstructFactory(array($this->apiCacheImpl), Scope::REQUEST)
+                'factory' => new ConstructFactory(array(), Scope::REQUEST)
             ),
             array(
                 'class' => 'Huge\Rest\Http\HttpRequest',

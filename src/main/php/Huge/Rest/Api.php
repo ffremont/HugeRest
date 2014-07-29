@@ -20,13 +20,6 @@ use Huge\Rest\Exceptions\InvalidResponseException;
 class Api {
 
     /**
-     * Implémentation de cache pour la mise en cache de l'API REST
-     * 
-     * @var \Doctrine\Common\Cache\Cache
-     */
-    private $cacheImpl;
-
-    /**
      *
      * @Autowired("Huge\Rest\WebAppIoC")
      * @var \Huge\Rest\WebAppIoC
@@ -86,14 +79,8 @@ class Api {
         ':oAlpha' => '([a-zA-Z0-9-_]*)'
     );
 
-    /**
-     * 
-     * @param string $contextRoot 
-     * @param \Doctrine\Common\Cache\Cache $cache
-     */
-    public function __construct($contextRoot = '', $cache = null) {
-        $this->contextRoot = trim($contextRoot, '/');
-        $this->cacheImpl = $cache;
+    public function __construct() {
+        $this->contextRoot = '';
         $this->routes = array();
         $this->logger = \Logger::getLogger(__CLASS__);
     }
@@ -103,8 +90,8 @@ class Api {
      */
     public function loadRoutes() {
         $cacheKey = __CLASS__ . $this->webAppIoC->getVersion() . '_loadRoutes';
-        if ($this->cacheImpl !== null) {
-            $routes = $this->cacheImpl->fetch($cacheKey);
+        if ($this->webAppIoC->getApiCacheImpl() !== null) {
+            $routes = $this->webAppIoC->getApiCacheImpl()->fetch($cacheKey);
             if ($routes !== FALSE) {
                 $this->routes = $routes;
                 return;
@@ -169,8 +156,8 @@ class Api {
             }
         }
 
-        if ($this->cacheImpl !== null) {
-            $this->cacheImpl->save($cacheKey, $this->routes);
+        if ($this->webAppIoC->getApiCacheImpl() !== null) {
+            $this->webAppIoC->getApiCacheImpl()->save($cacheKey, $this->routes);
         }
     }
 
@@ -243,7 +230,9 @@ class Api {
     /**
      * Démarre l'analyse de la requête et le dispatch 
      */
-    public function run() {
+    public function run($contextRoot = '') {
+        $this->contextRoot = $contextRoot;
+        
         $this->loadRoutes();
         $this->processRoute($this->request);
         
@@ -326,18 +315,6 @@ class Api {
                 $httpResponse->build();
             }
         }
-    }
-
-    /**
-     * 
-     * @return \Doctrine\Common\Cache\Cache
-     */
-    public function getCacheImpl() {
-        return $this->cacheImpl;
-    }
-
-    public function setCacheImpl(Cache $cacheImpl) {
-        $this->cacheImpl = $cacheImpl;
     }
 
     public function getRequest() {
