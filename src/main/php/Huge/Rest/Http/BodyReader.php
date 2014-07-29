@@ -22,14 +22,35 @@ class BodyReader {
      * @var \Huge\Rest\Http\HttpRequest
      */
     private $request;
-    
-     /**
+
+    /**
      * @Autowired("Huge\Rest\WebAppIoC")
      * @var \Huge\Rest\WebAppIoC
      */
     private $webAppIoC;
 
-    public function __construct() {}
+    public function __construct() {
+        
+    }
+
+    /**
+     * Valide le contenu de l'objet / tableau
+     * 
+     * @throws RestValidationException
+     */
+    private function _checkEntity($validator, $entity) {
+        $result = $validator->run(is_object($entity) ? (array) $entity : $entity);
+
+        $errors = $result->getErrors();
+        if (!empty($errors)) {
+            $validations = array();
+            foreach ($errors as $field => $message) {
+                $validations[] = new Violation($field, $message);
+            }
+
+            throw new RestValidationException($validations, 'Validation impossible des données');
+        }
+    }
 
     /**
      * Permet de valider les données présentent dans le body de la requête
@@ -42,22 +63,19 @@ class BodyReader {
         if (($this->request !== null) && ($this->request->getEntity() !== null) && IocArray::in_array('Huge\Rest\Data\IValidator', $impls)) {
             $generator = new FromArray();
             $validator = null;
-            if($this->webAppIoC->getFuelValidatorFactory() === null){
+            if ($this->webAppIoC->getFuelValidatorFactory() === null) {
                 $validator = new Validator();
-            }else{
+            } else {
                 $validator = $this->webAppIoC->getFuelValidatorFactory()->createValidator();
             }
             $generator->setData(call_user_func_array($validatorClassName . '::getConfig', array()))->populateValidator($validator);
-            $result = $validator->run(is_object($this->request->getEntity()) ? (array) $this->request->getEntity() : $this->request->getEntity());
 
-            $errors = $result->getErrors();
-            if (!empty($errors)) {
-                $validations = array();
-                foreach ($errors as $field => $message) {
-                    $validations[] = new Violation($field, $message);
+            if (is_object($this->request->getEntity())) {
+                $this->_checkEntity($validator, $this->request->getEntity());
+            }else{
+                foreach($this->request->getEntity() as $stdModel){
+                    $this->_checkEntity($validator, $stdModel);
                 }
-
-                throw new RestValidationException($validations, 'Validation impossible des données');
             }
         }
     }
@@ -77,8 +95,6 @@ class BodyReader {
     public function setWebAppIoC(\Huge\Rest\WebAppIoC $webAppIoC) {
         $this->webAppIoC = $webAppIoC;
     }
-    
-    
 
 }
 
