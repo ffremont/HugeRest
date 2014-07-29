@@ -10,7 +10,8 @@ Installer avec composer
     {
         "require": {
            "huge/rest": "...",
-           "huge/ioc": "..."
+           "huge/ioc": "...",
+           "doctrine/cache" : "v1.3.0"
         }
     }
 ```
@@ -41,6 +42,7 @@ Installer avec composer
 * Personnalisation des contenus
   * interprétation du contenu de la requête  : implémentation de Huge\Rest\Process\IBodyReader
   * interprétation du contenu de la réponse  : implémentation de Huge\Rest\Process\IBodyWriter
+  * validation des contenus l'interface : Huge\Rest\Data\IValidator
 * Gestion des erreurs extra-souple : implémentation de Huge\Rest\Process\IExceptionMapper
 * Gestion de filtres sur les requêtes : implémentation de Huge\Rest\Process\IFilter
 * Gestion d'intercepteurs sur les requêtes : implémentation de Huge\Rest\Process\IInterceptor
@@ -114,6 +116,22 @@ $ioc->addDefinitions(array(
 ));
 ```
 
+## Validateurs sur les modèles
+* Basé sur fuelphp validation https://github.com/fuelphp/validation
+* Il est possible de valider les données qui sont passées dans le body de la requête.
+* Interface que le modèle doit implémenter : Huge\Rest\Data\IValidator
+```php
+// dans votre classe ressource
+/**
+* @Autowired("Huge\Rest\Http\BodyReader")
+*/
+private $bodyReader;
+
+// dans votre fonction
+$this->bodyReader->validate('...nom_de_la_classe_modele...');
+```
+* Lancement de l'exception : Huge\Rest\Exceptions\ValidationException
+
 ## Personnaliser les erreurs
 * Votre webapp va pouvoir emettre des exceptions qu'il va falloir convertir en réponse HTTP. Pour réaliser cela, il va être nécessaire d'enregistrer des couples selon le format : "Nom de l'exception" => "Nom de la classe qui implémente".
 * Interface à implémenter : Huge\Rest\Process\IExceptionMapper
@@ -121,11 +139,16 @@ $ioc->addDefinitions(array(
 ```php
 $ioc = new \Huge\Rest\WebAppIoC('1.0');
 $ioc->addExceptionsMapping(array(
-    'LogicException' => 'MyWebApi\Exceptions\LogicMapper'
+    'LogicException' => 'MyWebApi\Exceptions\LogicMapper',
+    'Huge\Rest\Exceptions\NotFoundResourceException' => null, // désactivation du mapper
+    'Exception' => 'MyWebApi\Exceptions\DefaultExceptionMapper'
 ));
 ```
 * Liste des mappers :
-    * 'Huge\Rest\Exceptions\NotFoundException' => 'Huge\Rest\Exceptions\Mappers\NotFoundExceptionMapper'
+    * 'Huge\Rest\Exceptions\NotFoundResourceException' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper'
+    * 'Huge\Rest\Exceptions\BadImplementationException' => 'Huge\Rest\Exceptions\Mappers\BadImplementationExceptionMapper'
+    * 'Huge\Rest\Exceptions\InvalidResponseException' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper'
+    * 'Huge\Rest\Exceptions\ValidationException' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper'
 
 ## Ordonnancement
 * Analyse de la requête HTTP
