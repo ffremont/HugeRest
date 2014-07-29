@@ -54,7 +54,7 @@ class Person {
 
     /**
      * @Get
-     * @Path(":number")
+     * @Path(":mNumber")
      */
     public function get($id = '') {
         $person = new \stdClass();
@@ -65,7 +65,7 @@ class Person {
     
     /**
      * @Delete
-     * @Path(":number")
+     * @Path(":mNumber")
      */
     public function delete($id = '') {
         $person = new \stdClass();
@@ -76,7 +76,7 @@ class Person {
     
      /**
      * @Put
-     * @Path(":number")
+     * @Path(":mNumber")
      */
     public function put($id = '') {
         $requestBody = (object)$this->request->getEntity();
@@ -97,9 +97,9 @@ class Person {
 
     /**
      * @Get
-     * @Path("search")
+     * @Path("search/?:oNumber/?:oNumber")
      */
-    public function search() {
+    public function search($numberA = '', $numberB = '') {
         $query = $this->request->getParamGet('query');
 
         $list = array();
@@ -107,6 +107,8 @@ class Person {
             $person = new \stdClass();
             $person->id = uniqid();
             $person->query = $query;
+            $person->a = $numberA;
+            $person->b = $numberB;
             $list[] = $person;
         }
         

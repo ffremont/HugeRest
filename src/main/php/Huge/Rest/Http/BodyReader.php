@@ -29,11 +29,10 @@ class BodyReader {
      */
     private $webAppIoC;
 
-    public function __construct() {
-        
-    }
+    public function __construct() {}
 
     /**
+     * Permet de valider les données présentent dans le body de la requête
      * 
      * @param string $validatorClassName
      * @throws RestValidationException

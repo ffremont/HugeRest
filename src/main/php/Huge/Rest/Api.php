@@ -78,9 +78,12 @@ class Api {
      * @var array
      */
     private static $TOKENS = array(
-        ':string' => '([a-zA-Z]+)',
-        ':number' => '([0-9]+)',
-        ':alpha' => '([a-zA-Z0-9-_]+)'
+        ':mString' => '([a-zA-Z]+)',
+        ':mNumber' => '([0-9]+)',
+        ':mAlpha' => '([a-zA-Z0-9-_]+)',
+        ':oString' => '([a-zA-Z]*)',
+        ':oNumber' => '([0-9]*)',
+        ':oAlpha' => '([a-zA-Z0-9-_]*)'
     );
 
     /**
@@ -95,6 +98,9 @@ class Api {
         $this->logger = \Logger::getLogger(__CLASS__);
     }
 
+    /**
+     * Charge les routes disponibles
+     */
     public function loadRoutes() {
         $cacheKey = __CLASS__ . $this->webAppIoC->getVersion() . '_loadRoutes';
         if ($this->cacheImpl !== null) {

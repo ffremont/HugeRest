@@ -4,7 +4,7 @@
         <layout class="LoggerLayoutPattern">
             <param name="conversionPattern" value="%date{Y-m-d H:i} - %logger %-5level : %msg%n%ex" />
         </layout>
-        <param name="file" value="/var/log/apps/hugeRest/hugeRest.log" />
+        <param name="file" value="/var/log/apps/hugeRest/hugeRestTest.log" />
         <param name="maxBackupIndex" value="5" />
     </appender>
     <root>

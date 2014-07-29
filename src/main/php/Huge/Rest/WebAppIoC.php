@@ -25,7 +25,7 @@ class WebAppIoC extends SuperIoC {
      * @var \Doctrine\Common\Cache\Cache
      */
     private $apiCacheImpl;
-    
+
     /**
      *
      * @var \Logger
@@ -47,28 +47,28 @@ class WebAppIoC extends SuperIoC {
      * @var array
      */
     private $exceptionsMapping;
-    
+
     /**
      * Liste des IBodyReader
      * 
      * @var array
      */
     private $bodyReaders;
-    
+
     /**
      * Liste des IBodyWriter
      *
      * @var array
      */
     private $bodyWriters;
-    
+
     /**
      * Vrai si le conteneur a déjà été initialisé
      * 
      * @var boolean
      */
     private $isStarted;
-    
+
     /**
      *
      * @var \Huge\Rest\Data\IFuelValidatorFactory
@@ -97,7 +97,9 @@ class WebAppIoC extends SuperIoC {
         );
         $this->exceptionsMapping = array(
             'Huge\Rest\Exceptions\NotFoundResourceException' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper',
-            'Huge\Rest\Exceptions\BadImplementationException' => 'Huge\Rest\Exceptions\Mappers\BadImplementationExceptionMapper'
+            'Huge\Rest\Exceptions\BadImplementationException' => 'Huge\Rest\Exceptions\Mappers\BadImplementationExceptionMapper',
+            'Huge\Rest\Exceptions\InvalidResponseException' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper',
+            'Huge\Rest\Exceptions\ValidationException' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper'
         );
         $this->apiCacheImpl = null;
         $this->logger = \Logger::getLogger(__CLASS__);
@@ -164,16 +166,16 @@ class WebAppIoC extends SuperIoC {
      * @param $contextRoot ContextRoot de l'application s'il y en a un de spécifique
      */
     public function run($contextRoot = null) {
-       $this->start();
+        $this->start();
 
         $api = $this->getBean('Huge\Rest\Api');
         if ($api === null) {
             $this->logger->error('Bean Huge\Rest\Api introuvable');
         } else {
-            if($contextRoot !== null){
+            if ($contextRoot !== null) {
                 $api->setContextRoot($contextRoot);
             }
-            
+
             $api->run();
         }
     }
@@ -235,19 +237,19 @@ class WebAppIoC extends SuperIoC {
      * @param array $bodyReaders
      */
     public function addBodyReaders(array $bodyReaders) {
-        $this->bodyReaders = array_merge($this->bodyReaders,  $bodyReaders);
+        $this->bodyReaders = array_merge($this->bodyReaders, $bodyReaders);
     }
-    
+
     /**
      * Retourne le nom de la classe qui implémente le IBodyReader pour analye le contenu de la requête HTTP
      * 
      * @param string $contentType
      * @return string
      */
-    public function getBodyReader($contentType){
+    public function getBodyReader($contentType) {
         return isset($this->bodyReaders[$contentType]) ? $this->bodyReaders[$contentType] : null;
     }
-    
+
     /**
      *  Retourne le nom de la classe qui implémente IBodyWriter
      * 
@@ -267,7 +269,7 @@ class WebAppIoC extends SuperIoC {
     public function addBodyWriters(array $bodyWriters) {
         $this->bodyWriters = array_merge($this->bodyWriters, $bodyWriters);
     }
-    
+
     /**
      * 
      * @return \Huge\Rest\Data\IFuelValidatorFactory
@@ -283,5 +285,6 @@ class WebAppIoC extends SuperIoC {
     public function setFuelValidatorFactory(IFuelValidatorFactory $fuelValidatorFactory) {
         $this->fuelValidatorFactory = $fuelValidatorFactory;
     }
+
 }
 

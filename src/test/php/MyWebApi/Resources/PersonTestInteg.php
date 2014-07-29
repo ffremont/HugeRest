@@ -11,7 +11,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @test
+     *@test
      */
     public function not_found() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -169,13 +169,13 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
-    public function search_ok() {
+    public function search_noQueryPath_withGetParam_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
         
         $status = null;
         $response = null;
         try{
-            $response = $client->get('/person/search?query=Azer')->setHeader('accept', 'application/json')->send();
+            $response = $client->get('/person/search?query=Hello+world')->setHeader('accept', 'application/json')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());
@@ -186,6 +186,40 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $json = $response->getBody(true);
         $list = json_decode($json);
         $this->assertTrue(is_array($list));
+
+        foreach($list as $person){
+            $this->assertEmpty($person->a);
+            $this->assertEmpty($person->b);
+            $this->assertEquals('Hello world',$person->query);
+        }
+    }
+    
+    /**
+     * @test
+     */
+    public function search_withQueryPath_withGetParam_ok() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+        
+        $status = null;
+        $response = null;
+        try{
+            $response = $client->get('/person/search/22/33?query=Hello+world')->setHeader('accept', 'application/json')->send();
+            $status = $response->getStatusCode();
+        }catch(\Exception $e){
+            $this->fail($e->getMessage());
+        }
+        
+        $this->assertEquals(200, $status);
+        $this->assertEquals('application/vnd.person.v1+json', $response->getContentType());
+        $json = $response->getBody(true);
+        $list = json_decode($json);
+        $this->assertTrue(is_array($list));
+
+        foreach($list as $person){
+            $this->assertEquals('22', $person->a);
+            $this->assertEquals('33', $person->b);
+            $this->assertEquals('Hello world',$person->query);
+        }
     }
 }
 
