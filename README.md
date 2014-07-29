@@ -56,7 +56,120 @@ Installer avec composer
     * @Path facultatif
     * @Consumes facultatif
     * @Produces facultatif
+    * 
+```php
+/**
+ * EXEMPLE
+ * Ressource "Person" qui a pour chemin "person". Notre ressource produit en retour une structure JSON en v1 par défaut. 
+ * Chaque opération de la classe prend par défaut du "application/vnd.person.v1+json" / "application/json".
+ * Si on surcharge sur la fonction @Consumes / @Produces alors la configuration de la fonction primera.
+ * 
+ * @Component
+ * @Resource
+ * @Path("person")
+ * 
+ * @Consumes({"application/vnd.person.v1+json", "application/json"})
+ * @Produces({"application/vnd.person.v1+json"})
+ */
+class Person {
 
+    /**
+     * @Autowired("Huge\Rest\Http\HttpRequest")
+     * @var \Huge\Rest\Http\HttpRequest
+     */
+    private $request;
+
+    /**
+     *
+     * @var \Logger
+     */
+    private $logger; 
+   
+    public function __construct() {
+        $this->logger = \Logger::getLogger(__CLASS__);
+    }
+
+    /**
+     * @Get
+     * @Consumes({"text/plain"})
+     * @Produces({"text/plain"})
+     */
+    public function ping() {        
+        return HttpResponse::ok();
+    }
+
+    /**
+     * @Get
+     * @Path(":mNumber")
+     */
+    public function get($id = '') {
+        $person = new \stdClass();
+        $person->id = $id;
+
+        return HttpResponse::ok()->entity($person);
+    }
+    
+    /**
+     * @Delete
+     * @Path(":mNumber")
+     */
+    public function delete($id = '') {
+        $person = new \stdClass();
+        $person->id = $id;
+        
+        return HttpResponse::ok()->entity($person);
+    }
+    
+     /**
+     * @Put
+     * @Path(":mNumber")
+     */
+    public function put($id = '') {
+        $requestBody = (object)$this->request->getEntity();
+        $requestBody->id = $id;
+        
+        return HttpResponse::ok()->entity($requestBody);
+    }
+
+    /**
+     * @Post
+     */
+    public function post() {
+        $person = new \stdClass();
+        $person->id = uniqid();
+        
+        return HttpResponse::ok()->code(201)->entity($person);
+    }
+
+    /**
+     * @Get
+     * @Path("search/?:oNumber/?:oNumber")
+     */
+    public function search($numberA = '', $numberB = '') {
+        $query = $this->request->getParamGet('query');
+
+        $list = array();
+        for ($i = 0; $i < 5; $i++) {
+            $person = new \stdClass();
+            $person->id = uniqid();
+            $person->query = $query;
+            $person->a = $numberA;
+            $person->b = $numberB;
+            $list[] = $person;
+        }
+        
+        return HttpResponse::ok()->entity($list);
+    }
+
+    public function getRequest() {
+        return $this->request;
+    }
+
+    public function setRequest($request) {
+        $this->request = $request;
+    }
+}
+```
 
 ## Gérer un contenu de requête
 * Pour gérer les types mime des requêtes HTTP vous avez la possibilité d'implémenter vos propres "IBodyReader"
