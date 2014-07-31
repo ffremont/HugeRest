@@ -294,11 +294,10 @@ class Api {
             // Write entity
             if ($httpResponse->hasEntity()) {
                 $bodyWriterClassName = $this->webAppIoC->getBodyWriter($outputMimeType);
-                if (IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
+                if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
-                    throw new WebApplicationException('Ecriture de la requête impossible car "'.$bodyWriterClassName.'" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406); //  Not Acceptable
-                    throw new BadImplementationException($bodyWriterClassName, 'Huge\Rest\Process\IBodyWriter', 'Ecriture de la réponse impossible');
+                    throw new WebApplicationException('Ecriture de la requête impossible car "'.$bodyWriterClassName.'" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406);//  Not Acceptable
                 }
                 
             }

@@ -3,7 +3,7 @@
 namespace Huge\Rest\Http;
 
 use Huge\Rest\Exceptions\SizeLimitExceededException;
-
+use Huge\Rest\Exceptions\IOException;
 use Huge\IoC\Annotations\Component;
 
 /**
@@ -109,24 +109,29 @@ class HttpRequest {
      * @param int $threshold lecture des données par bloc de X octets
      * @return mixed
      * @throws SizeLimitExceededException
+     * @throws IOException
      */
     public function getBody($threshold = 1024) {
         if ($this->body === null) {
             $resource = fopen("php://input", "r");
+            if ($resource === false) {
+                throw new IOException('Impossible d\'ouverture du flux "php://input" en lecture');
+            }
             $chunk_read = 0;
             $this->body = '';
 
             /* Lecture des données, $threshold à la fois */
             while ($data = fread($resource, $threshold)) {
-                $chunk_read = $chunk_read + strlen($data); 
-                
-                if(($this->maxBodySize !== null) && ($chunk_read > $this->maxBodySize)){
+                $chunk_read = $chunk_read + strlen($data);
+
+                if (($this->maxBodySize !== null) && ($chunk_read > $this->maxBodySize)) {
+                    fclose($resource);
                     throw new SizeLimitExceededException('Taille du flux HTTP invalide', $this->maxBodySize, $chunk_read);
                 }
-                
-               $this->body .= $data;
+
+                $this->body .= $data;
             }
-            
+
             /* Fermeture du flux */
             fclose($resource);
         }
