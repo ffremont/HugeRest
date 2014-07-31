@@ -100,7 +100,7 @@ class Person {
      * @Path("search/?:oNumber/?:oNumber")
      */
     public function search($numberA = '', $numberB = '') {
-        $query = $this->request->getParamGet('query');
+        $query = $this->request->getParam('query');
 
         $list = array();
         for ($i = 0; $i < 5; $i++) {

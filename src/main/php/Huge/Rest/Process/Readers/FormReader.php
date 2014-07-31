@@ -10,8 +10,11 @@ class FormReader implements IBodyReader{
         
     }
 
-    public static function read($body) {
-        return urldecode($body);
+    /**
+     * @param \Huge\Rest\Http\HttpRequest $request
+     */
+    public static function read($request){
+        return $request->getParams();
     }
 
 }

@@ -2,6 +2,8 @@
 
 namespace Huge\Rest\Http;
 
+use Huge\Rest\Exceptions\SizeLimitExceededException;
+
 use Huge\IoC\Annotations\Component;
 
 /**
@@ -14,23 +16,30 @@ class HttpRequest {
     private $body;
     private $entity;
     private $accepts;
-    private $get;
+    private $params;
     private $uri;
-    
+    private $maxBodySize;
 
-    public function __construct($server = array(), $get = array()) {
+    /**
+     * 
+     * @param array $server
+     * @param array $request
+     * @param int $maxBodySize taille max du body de la requête (en octet)
+     */
+    public function __construct($server = array(), $request = array(), $maxBodySize = null) {
         $this->server = $server;
         $this->headers = $this->_getallheaders($server);
         $this->body = null;
         $this->entity = null;
         $this->accepts = null;
-        $this->get = $get;
-        
+        $this->params = $request;
+        $this->maxBodySize = $maxBodySize;
+
         $uriTrim = trim($server['REQUEST_URI'], '/');
         $matches = array();
-        if(preg_match('#[^\?]*#', $uriTrim, $matches)){
+        if (preg_match('#[^\?]*#', $uriTrim, $matches)) {
             $this->uri = $matches[0];
-        }else{
+        } else {
             $this->uri = $uriTrim;
         }
     }
@@ -42,32 +51,32 @@ class HttpRequest {
                 $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
         }
-        if(isset($server['CONTENT_TYPE'])){
+        if (isset($server['CONTENT_TYPE'])) {
             $headers['Content-Type'] = $server['CONTENT_TYPE'];
         }
-        
+
         return $headers;
     }
-    
+
     /**
      * Retourne la liste des accept (mode lazy)
      * 
      * @return array
      */
-    public function getAccepts(){
-        if($this->accepts === null){
+    public function getAccepts() {
+        if ($this->accepts === null) {
             $matchesAccepts = array();
-             if(preg_match("#[^;]+#", $this->getHeader('Accept'), $matchesAccepts)){
-                 $this->accepts = explode(',', $matchesAccepts[0]);
-             }else{
-                 $this->accepts = array();
-             }
+            if (preg_match("#[^;]+#", $this->getHeader('Accept'), $matchesAccepts)) {
+                $this->accepts = explode(',', $matchesAccepts[0]);
+            } else {
+                $this->accepts = array();
+            }
         }
-        
+
         return $this->accepts;
     }
-    
-    public function getUri(){
+
+    public function getUri() {
         return $this->uri;
     }
 
@@ -89,24 +98,50 @@ class HttpRequest {
     public function getHeader($name) {
         return isset($this->headers[$name]) ? $this->headers[$name] : null;
     }
-    
-    public function getContentType(){
+
+    public function getContentType() {
         return $this->getHeader('Content-Type');
     }
-    
+
     /**
-     * Retourne le contenu de la requête en mode lazy
+     * Lit le body de la requête en tenant compte de la limitation s'il y en a une "maxBodySize"
      * 
-     * @return sring
+     * @param int $threshold lecture des données par bloc de X octets
+     * @return mixed
+     * @throws SizeLimitExceededException
      */
-    public function getBody() {
-        if($this->body === null){
-            $this->body = file_get_contents('php://input');
+    public function getBody($threshold = 1024) {
+        if ($this->body === null) {
+            $resource = fopen("php://input", "r");
+            $chunk_read = 0;
+            $this->body = '';
+
+            /* Lecture des données, $threshold à la fois */
+            while ($data = fread($resource, $threshold)) {
+                $chunk_read = $chunk_read + strlen($data); 
+                
+                if(($this->maxBodySize !== null) && ($chunk_read > $this->maxBodySize)){
+                    throw new SizeLimitExceededException('Taille du flux HTTP invalide', $this->maxBodySize, $chunk_read);
+                }
+                
+               $this->body .= $data;
+            }
+            
+            /* Fermeture du flux */
+            fclose($resource);
         }
-        
+
         return $this->body;
     }
-    
+
+    /**
+     * 
+     * @return resource
+     */
+    public function getBodyResource() {
+        return fopen("php://input", "r");
+    }
+
     public function getEntity() {
         return $this->entity;
     }
@@ -114,34 +149,33 @@ class HttpRequest {
     public function setEntity($entity) {
         $this->entity = $entity;
     }
-    
-    public function getGet() {
-        return $this->get;
-    }
 
-    public function setGet($get) {
-        $this->get = $get;
-    }
-    
     /**
      * Cache Control de la requêter
      *
      * @return string
      */
-    public function getCacheControl()
-    {
+    public function getCacheControl() {
         return (string) $this->getHeader('Cache-Control');
     }
-    
+
     /**
-     * Retourne un paramètre GET
+     * Retourne un paramètre
      * 
      * @param string $name
      * @return mixed
      */
-    public function getParamGet($name){
-        return isset($this->get[$name]) ? $this->get[$name] : null;
+    public function getParam($name) {
+        return isset($this->params[$name]) ? $this->params[$name] : null;
     }
-    
+
+    public function getParams() {
+        return $this->params;
+    }
+
+    public function getMaxBodySize() {
+        return $this->maxBodySize;
+    }
+
 }
 

@@ -10,8 +10,11 @@ class JsonReader implements IBodyReader{
         
     }
 
-    public static function read($body) {
-        return json_decode($body);
+   /**
+     * @param \Huge\Rest\Http\HttpRequest $request
+     */
+    public static function read($request){
+        return json_decode($request->getBody());
     }
 
 }

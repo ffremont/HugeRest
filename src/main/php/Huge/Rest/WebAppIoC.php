@@ -10,6 +10,7 @@ use Huge\IoC\Scope;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Huge\Rest\Data\IFuelValidatorFactory;
+use Huge\Rest\Utils\ConfigInitHelper;
 
 /**
  * Conteneur IoC permettant de gérer l'exposition REST
@@ -74,14 +75,28 @@ class WebAppIoC extends SuperIoC {
      * @var \Huge\Rest\Data\IFuelValidatorFactory
      */
     private $fuelValidatorFactory;
+    
+    /**
+     * Contient la config de la webapp
+     * 
+     * @var array 
+     */
+    private $config;
 
     /**
      * 
      * @param string $version permet de rafraichir le cache lors des montées de versions
      */
-    public function __construct($version = '') {
+    public function __construct($version = '', $configs = array()) {
         parent::__construct($version);
 
+        $this->logger = \Logger::getLogger(__CLASS__);
+        $defaultConfig = array(
+           'maxBodySize' => isset($configs['maxBodySize']) ? null : ConfigInitHelper::convertUnit(ini_get('post_max_size'))
+        );
+        $this->config = array(array_merge($defaultConfig, $configs));
+        $this->logger->debug('Config : '.print_r($this->config));
+        
         $this->isStarted = false;
         $this->fuelValidatorFactory = null;
         $this->filtersMapping = array();
@@ -102,7 +117,6 @@ class WebAppIoC extends SuperIoC {
             'Huge\Rest\Exceptions\ValidationException' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper'
         );
         $this->apiCacheImpl = null;
-        $this->logger = \Logger::getLogger(__CLASS__);
         $this->addDefinitions(array(
             array(
                 'class' => 'Huge\Rest\Api',
@@ -110,7 +124,7 @@ class WebAppIoC extends SuperIoC {
             ),
             array(
                 'class' => 'Huge\Rest\Http\HttpRequest',
-                'factory' => new ConstructFactory(array($_SERVER, $_GET))
+                'factory' => new ConstructFactory(array($_SERVER, $_REQUEST, $this->getConfig('maxBodySize')))
             ),
             array(
                 'class' => 'Huge\Rest\Routing\Route',
@@ -284,6 +298,16 @@ class WebAppIoC extends SuperIoC {
      */
     public function setFuelValidatorFactory(IFuelValidatorFactory $fuelValidatorFactory) {
         $this->fuelValidatorFactory = $fuelValidatorFactory;
+    }
+    
+    /**
+     * Retourne la config à partir du nom
+     * 
+     * @param string $name
+     * @return mixed
+     */
+    public function getConfig($name){
+        return isset($this->config[$name]) ? $this->config[$name] : null;
     }
 
 }

@@ -250,7 +250,7 @@ class Api {
             if (IocArray::in_array($this->route->getMethod(), array('POST', 'PUT'))) {
                 $bodyReaderClassName = $this->webAppIoC->getBodyReader($this->request->getContentType());
                 if (IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
-                    $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request->getBody())));
+                    $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request)));
                 } else {
                     throw new BadImplementationException($bodyReaderClassName, 'Huge\Rest\Process\IBodyReader', 'Lecture de la requête impossible');                    
                 }

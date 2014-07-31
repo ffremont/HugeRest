@@ -9,7 +9,9 @@ $configurator = new \LoggerConfiguratorDefault();
 
 \Huge\IoC\Container\SuperIoC::registerLoader(array($loader, 'loadClass'));
 
-$ioc = new \Huge\Rest\WebAppIoC('1.0');
+$ioc = new \Huge\Rest\WebAppIoC('1.1', array(
+    'maxBodySize' => 1024 // 1Ko max
+));
 $ioc->setCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 $ioc->addBodyWriters(array(
     'application/vnd.person.v1+json' => 'Huge\Rest\Process\Writers\JsonWriter'

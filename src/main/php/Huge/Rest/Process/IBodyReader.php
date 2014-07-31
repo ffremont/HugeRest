@@ -4,7 +4,11 @@ namespace Huge\Rest\Process;
 
 
 interface IBodyReader {
-    public static function read($body);
+    /**
+     * 
+     * @param \Huge\Rest\Http\HttpRequest $request
+     */
+    public static function read($request);
 }
 
 ?>
