@@ -253,7 +253,7 @@ class Api {
                 if (($bodyReaderClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
                     $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request)));
                 } else {
-                    $this->request->setEntity(call_user_func_array( 'Huge\Rest\Process\Writers\TextWriter::read', array($this->request)));
+                    throw new WebApplicationException('Lecture de la requête impossible car "'.$bodyReaderClassName.'" implémente pas "Huge\Rest\Process\IBodyReader" ', 415); //  Not Acceptable
                 }
             }
 
@@ -294,10 +294,10 @@ class Api {
             // Write entity
             if ($httpResponse->hasEntity()) {
                 $bodyWriterClassName = $this->webAppIoC->getBodyWriter($outputMimeType);
-                if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
+                if (IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
-                    throw new WebApplicationException('Ecriture de la requête impossible car "'.$bodyWriterClassName.'" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406);//  Not Acceptable
+                    $this->request->setEntity(call_user_func_array( 'Huge\Rest\Process\Writers\TextWriter::write', array($this->request)));
                 }
                 
             }
