@@ -95,7 +95,6 @@ class WebAppIoC extends SuperIoC {
            'maxBodySize' => isset($configs['maxBodySize']) ? null : ConfigInitHelper::convertUnit(ini_get('post_max_size'))
         );
         $this->config = array(array_merge($defaultConfig, $configs));
-        $this->logger->debug('Config : '.print_r($this->config));
         
         $this->isStarted = false;
         $this->fuelValidatorFactory = null;
@@ -112,9 +111,11 @@ class WebAppIoC extends SuperIoC {
         );
         $this->exceptionsMapping = array(
             'Huge\Rest\Exceptions\NotFoundResourceException' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper',
-            'Huge\Rest\Exceptions\BadImplementationException' => 'Huge\Rest\Exceptions\Mappers\BadImplementationExceptionMapper',
             'Huge\Rest\Exceptions\InvalidResponseException' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper',
-            'Huge\Rest\Exceptions\ValidationException' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper'
+            'Huge\Rest\Exceptions\ValidationException' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper',
+            'Huge\Rest\Exceptions\WebApplicationException' => 'Huge\Rest\Exceptions\Mappers\WebApplicationExceptionMapper',
+            'Huge\Rest\Exceptions\SizeLimitExceededException' => 'Huge\Rest\Exceptions\Mappers\SizeLimitExceededExceptionMapper',
+            'Exception' => 'Huge\Rest\Exceptions\Mappers\DefaultExceptionMapper'
         );
         $this->apiCacheImpl = null;
         $this->addDefinitions(array(

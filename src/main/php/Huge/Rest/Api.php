@@ -13,6 +13,7 @@ use Huge\IoC\Utils\IocArray;
 use Huge\Rest\Exceptions\NotFoundResourceException;
 use Huge\Rest\Exceptions\BadImplementationException;
 use Huge\Rest\Exceptions\InvalidResponseException;
+use Huge\Rest\Exceptions\WebApplicationException;
 
 /**
  * @Component
@@ -249,10 +250,10 @@ class Api {
             // analyse le contenu pour le parser
             if (IocArray::in_array($this->route->getMethod(), array('POST', 'PUT'))) {
                 $bodyReaderClassName = $this->webAppIoC->getBodyReader($this->request->getContentType());
-                if (IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
+                if (($bodyReaderClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
                     $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request)));
                 } else {
-                    throw new BadImplementationException($bodyReaderClassName, 'Huge\Rest\Process\IBodyReader', 'Lecture de la requête impossible');                    
+                    $this->request->setEntity(call_user_func_array( 'Huge\Rest\Process\Writers\TextWriter::read', array($this->request)));
                 }
             }
 
@@ -296,6 +297,7 @@ class Api {
                 if (IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
+                    throw new WebApplicationException('Ecriture de la requête impossible car "'.$bodyWriterClassName.'" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406); //  Not Acceptable
                     throw new BadImplementationException($bodyWriterClassName, 'Huge\Rest\Process\IBodyWriter', 'Ecriture de la réponse impossible');
                 }
                 

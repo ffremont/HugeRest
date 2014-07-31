@@ -4,7 +4,7 @@ namespace Huge\Rest\Process\Readers;
 
 use Huge\Rest\Process\IBodyReader;
 
-class TextReader implements IBodyReader{
+class BinaryReader implements IBodyReader{
 
     public function __construct() {
         
@@ -14,7 +14,7 @@ class TextReader implements IBodyReader{
      * @param \Huge\Rest\Http\HttpRequest $request
      */
     public static function read($request){
-        return $request->getBody();
+        return $request->getBody(10240); // lire par bloc de 10ko
     }
 
 }
