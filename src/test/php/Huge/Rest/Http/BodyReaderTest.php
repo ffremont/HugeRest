@@ -43,7 +43,7 @@ class BodyReaderTest extends \PHPUnit_Framework_TestCase {
         $ioc->getBean('Huge\Rest\Http\HttpRequest')->setEntity((object)$data);
         $ex = false;
         try{
-            $ioc->getBean('Huge\Rest\Http\BodyReader')->validate('Huge\Rest\Data\Person');
+            $ioc->getBean('Huge\Rest\Http\BodyReader')->validateEntity('Huge\Rest\Data\Person');
         }catch(RestValidationException $e){
             $ex = $e;
         }
@@ -83,7 +83,7 @@ class BodyReaderTest extends \PHPUnit_Framework_TestCase {
         $ioc->getBean('Huge\Rest\Http\HttpRequest')->setEntity(array($p1, $p2));
         $ex = false;
         try{
-            $ioc->getBean('Huge\Rest\Http\BodyReader')->validate('Huge\Rest\Data\Person');
+            $ioc->getBean('Huge\Rest\Http\BodyReader')->validateEntityList('Huge\Rest\Data\Person');
         }catch(RestValidationException $e){
             $ex = $e;
         }
@@ -120,7 +120,7 @@ class BodyReaderTest extends \PHPUnit_Framework_TestCase {
         
         $ex = false;
         try{
-            $ioc->getBean('Huge\Rest\Http\BodyReader')->validate('Huge\Rest\Data\Person');
+            $ioc->getBean('Huge\Rest\Http\BodyReader')->validateEntity('Huge\Rest\Data\Person');
         }catch(RestValidationException $e){
             $ex = $e;
         }

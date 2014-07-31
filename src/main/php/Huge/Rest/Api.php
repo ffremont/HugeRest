@@ -297,7 +297,7 @@ class Api {
                 if (IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
-                    $this->request->setEntity(call_user_func_array( 'Huge\Rest\Process\Writers\TextWriter::write', array($this->request)));
+                    $this->request->setEntity(call_user_func_array( 'Huge\Rest\Process\Writers\TextWriter::write', array($httpResponse->getEntity())));
                 }
                 
             }

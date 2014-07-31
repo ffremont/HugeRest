@@ -58,7 +58,7 @@ class BodyReader {
      * @param string $validatorClassName
      * @throws RestValidationException
      */
-    public function validate($validatorClassName) {
+    public function validateEntity($validatorClassName) {
         $impls = class_implements($validatorClassName);
         if (($this->request !== null) && ($this->request->getEntity() !== null) && IocArray::in_array('Huge\Rest\Data\IValidator', $impls)) {
             $generator = new FromArray();
@@ -70,12 +70,28 @@ class BodyReader {
             }
             $generator->setData(call_user_func_array($validatorClassName . '::getConfig', array()))->populateValidator($validator);
 
-            if (is_object($this->request->getEntity())) {
-                $this->_checkEntity($validator, $this->request->getEntity());
-            }else{
+            $this->_checkEntity($validator, $this->request->getEntity());
+        }
+    }
+    
+    public function validateEntityList($validatorClassName) {
+        $impls = class_implements($validatorClassName);
+        if (($this->request !== null) && ($this->request->getEntity() !== null) && IocArray::in_array('Huge\Rest\Data\IValidator', $impls)) {
+            $generator = new FromArray();
+            $validator = null;
+            if ($this->webAppIoC->getFuelValidatorFactory() === null) {
+                $validator = new Validator();
+            } else {
+                $validator = $this->webAppIoC->getFuelValidatorFactory()->createValidator();
+            }
+            $generator->setData(call_user_func_array($validatorClassName . '::getConfig', array()))->populateValidator($validator);
+
+            if (is_array($this->request->getEntity())) {
                 foreach($this->request->getEntity() as $stdModel){
                     $this->_checkEntity($validator, $stdModel);
                 }
+            }else{
+                throw new \InvalidArgumentException('Entity doit être un array');
             }
         }
     }

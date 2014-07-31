@@ -11,7 +11,21 @@ class TextWriter implements IBodyWriter{
     }
 
     public static function write($entity) {
-        return $entity.'';
+        if(is_string($entity))
+            return $entity;
+        
+        if(is_object($entity)){
+            if(method_exists($entity, '__toString')){
+                return $entity->__toString();
+            }else{
+                return '';
+            }
+        }
+        if(is_array($entity)){
+            return implode("|",$entity);
+        }
+        
+        return '';
     }
 
 }
