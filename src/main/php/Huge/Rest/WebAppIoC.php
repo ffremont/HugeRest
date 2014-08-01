@@ -94,7 +94,7 @@ class WebAppIoC extends SuperIoC {
         $defaultConfig = array(
            'maxBodySize' => isset($configs['maxBodySize']) ? null : ConfigInitHelper::convertUnit(ini_get('post_max_size'))
         );
-        $this->config = array(array_merge($defaultConfig, $configs));
+        $this->config = array_merge($defaultConfig, $configs);
         
         $this->isStarted = false;
         $this->fuelValidatorFactory = null;
