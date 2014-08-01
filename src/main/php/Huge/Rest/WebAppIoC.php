@@ -102,7 +102,8 @@ class WebAppIoC extends SuperIoC {
         $this->bodyReaders = array(
             'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Readers\FormReader',
             'application/json' => 'Huge\Rest\Process\Readers\JsonReader',
-            'text/plain' => 'Huge\Rest\Process\Readers\TextReader'
+            'text/plain' => 'Huge\Rest\Process\Readers\TextReader',
+            'multipart/form-data' => 'Huge\Rest\Process\Readers\UploadReader'
         );
         $this->bodyWriters = array(
             'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Writers\FormWriter',

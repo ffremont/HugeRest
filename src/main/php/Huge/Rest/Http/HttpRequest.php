@@ -100,7 +100,15 @@ class HttpRequest {
     }
 
     public function getContentType() {
-        return $this->getHeader('Content-Type');
+        $contentType = $this->getHeader('Content-Type');
+        if(strpos($contentType, ';') !== false){
+            $matches = array();
+            if (preg_match("#[^;]+#", $contentType, $matches)) {
+                $contentType = $matches[0];
+            } 
+        }
+        
+        return $contentType;
     }
 
     /**
