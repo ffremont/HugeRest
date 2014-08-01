@@ -11,7 +11,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     *@test
+     *
      */
     public function not_found() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -27,7 +27,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * @test
+     * 
      */
     public function get_person_badAccept() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -43,7 +43,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * @test
+     * 
      */
     public function get_person_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -65,7 +65,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * @test
+     * 
      */
     public function head_person_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -85,7 +85,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * @test
+     * 
      */
     public function get_ping_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -105,7 +105,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     *@test
+     *
      */
     public function delete_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -126,7 +126,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
      /**
-     * @test
+     * 
      */
     public function put_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -147,7 +147,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * @test
+     
      */
     public function post_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -166,8 +166,53 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('application/vnd.person.v1+json', $response->getContentType());
     }
     
+     /**
+     * @test
+     */
+    public function postPersons_ok() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+        
+        $file = $GLOBALS['resourcesDir'].'/packagist-logo.png';
+        $status = null;
+        $response = null;
+        try{
+            $response = $client->post('/person/multipart', array(), array(
+                'myFile' => '@'.$file
+            ))->setHeader('accept', 'application/json')->send();
+            $status = $response->getStatusCode();
+        }catch(\Exception $e){
+            $this->fail($e->getMessage());
+        }
+        
+        $this->assertEquals(201, $status);
+        $decode = json_decode($response->getBody(true));
+        $this->assertTrue(isset($decode->myFile));
+        $this->assertEquals('packagist-logo.png', $decode->myFile->name);
+    }
+    
     /**
      * @test
+     */
+    public function postPersonsStream_ok() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+        
+        $file = $GLOBALS['resourcesDir'].'/packagist-logo.png';
+        $status = null;
+        $response = null;
+        try{
+            $response = $client->post('/person/stream')->setBody(fopen($file, 'r'))->setHeader('Content-Type', 'application/octet-stream')->setHeader('accept', 'application/json')->send();
+            $status = $response->getStatusCode();
+        }catch(\Exception $e){
+            $this->fail($e->getMessage());
+        }
+        
+        $this->assertEquals(201, $status);
+        $decode = json_decode($response->getBody(true));
+        $this->assertTrue(strpos($decode, 'Huge\Rest\Data\TempFile') !== false);
+    }
+    
+    /**
+     * 
      */
     public function search_noQueryPath_withGetParam_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -195,7 +240,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * @test
+     * 
      */
     public function search_withQueryPath_withGetParam_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);

@@ -87,6 +87,22 @@ class Person {
 
     /**
      * @Post
+     * @Path("multipart")
+     */
+    public function uploadPersons() {
+        return HttpResponse::ok()->code(201)->entity($this->request->getEntity());
+    }
+    
+    /**
+     * @Post
+     * @Path("stream")
+     */
+    public function uploadPersonsStream() {
+        return HttpResponse::ok()->code(201)->entity(serialize($this->request->getEntity()));
+    }
+    
+     /**
+     * @Post
      */
     public function post() {
         $person = new \stdClass();

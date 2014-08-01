@@ -10,7 +10,7 @@ $configurator = new \LoggerConfiguratorDefault();
 \Huge\IoC\Container\SuperIoC::registerLoader(array($loader, 'loadClass'));
 
 $ioc = new \Huge\Rest\WebAppIoC('1.1', array(
-    'maxBodySize' => 1024 // 1Ko max
+    'maxBodySize' => 20*1024 // 20Ko max
 ));
 $ioc->setCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 $ioc->addBodyWriters(array(

@@ -11,7 +11,7 @@ class NotFoundResourceException extends \Exception {
     private $uri;
 
     public function __construct ($uri) {
-        parent::__construct('Chemin de la ressource introuvable');
+        parent::__construct('Chemin de la ressource introuvable : '.$uri);
         
         $this->uri = $uri;
     }
