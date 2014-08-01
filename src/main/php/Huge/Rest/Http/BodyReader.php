@@ -36,7 +36,7 @@ class BodyReader {
     /**
      * Valide le contenu de l'objet / tableau
      * 
-     * @throws RestValidationException
+     * @throws \Huge\Rest\Exceptions\ValidationException
      */
     private function _checkEntity($validator, $entity) {
         $result = $validator->run(is_object($entity) ? (array) $entity : $entity);
@@ -53,10 +53,10 @@ class BodyReader {
     }
 
     /**
-     * Permet de valider les données présentent dans le body de la requête
+     * Permet de valider l'entity contenu dans la requête
      * 
      * @param string $validatorClassName
-     * @throws RestValidationException
+     * @throws Huge\Rest\Exceptions\ValidationException
      */
     public function validateEntity($validatorClassName) {
         $impls = class_implements($validatorClassName);
@@ -74,7 +74,14 @@ class BodyReader {
         }
     }
     
-    public function validateEntityList($validatorClassName) {
+    /**
+     * Permet de valider une liste de modèles (array ou object)
+     * 
+     * @param string $validatorClassName nom de la classe qui implémente Huge\Rest\Data\IValidator
+     * @throws \InvalidArgumentException
+     * @throws \Huge\Rest\Exceptions\ValidationException
+     */
+    public function validateList($validatorClassName) {
         $impls = class_implements($validatorClassName);
         if (($this->request !== null) && ($this->request->getEntity() !== null) && IocArray::in_array('Huge\Rest\Data\IValidator', $impls)) {
             $generator = new FromArray();
@@ -87,8 +94,8 @@ class BodyReader {
             $generator->setData(call_user_func_array($validatorClassName . '::getConfig', array()))->populateValidator($validator);
 
             if (is_array($this->request->getEntity())) {
-                foreach($this->request->getEntity() as $stdModel){
-                    $this->_checkEntity($validator, $stdModel);
+                foreach($this->request->getEntity() as $model){
+                    $this->_checkEntity($validator, $model);
                 }
             }else{
                 throw new \InvalidArgumentException('Entity doit être un array');
