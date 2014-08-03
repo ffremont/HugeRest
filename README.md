@@ -350,5 +350,5 @@ Avec ApcCache, sans memcache
 2014-07-29 13:04 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Consommation de 1.6 mo, avec un pic à 1.8 mo
 
 Avec ApcCache, avec memcache
-2014-07-29 13:38 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Temps d'exécution de la requête pendant 2.48 ms
-2014-07-29 13:38 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Consommation de 1.69 mo, avec un pic à 1.89 mo
+2014-07-29 13:04 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Temps d'exécution de la requête pendant 1.27 ms
+2014-07-29 13:04 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Consommation de 1.6 mo, avec un pic à 1.79 mo
