@@ -50,6 +50,13 @@ Installer avec composer
 * Cache : basé sur doctrine cache
 * Annotations basé sur doctrine annotations
 
+## Configuration
+```php
+$ioc = new \Huge\Rest\WebAppIoC('1.1', array(
+    'maxBodySize' => 1024 // taille max en octet des body (par défaut ini_get('post_max_size')). Un flux Json en PUT / POST ne pourra pas faire + d'1Ko dans cet exemple
+));
+```
+
 ## Création d'une ressource
 * Une ressource REST se matérialise par une classe PHP annotée. C'est un composant au sens Huge\IoC.
 * Utilisation des annotations :
