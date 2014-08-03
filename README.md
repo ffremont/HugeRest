@@ -38,6 +38,7 @@ Installer avec composer
 * Définition des ressources et des chemins via : @Resource / @Path("CHEMIN")
 * Gestion des méthodes HTTP : @Get, @Put, @Post, @Delete
 * Personnalisation des types mimes : @Consumes({"...", "..."})
+    * Permet de définir les accepts (GET, Delete) ou le content-type (POST, PUT)
 * Personnalisation du content type de la réponse : @Produces({"...", "..."})
 * Personnalisation des contenus
   * interprétation du contenu de la requête  : implémentation de Huge\Rest\Process\IBodyReader
@@ -66,7 +67,7 @@ Installer avec composer
     * ':oString' => '([a-zA-Z]*)'
     * ':oNumber' => '([0-9]*)'
     * ':oAlpha' => '([a-zA-Z0-9-_]*)'
-    * 
+    
 ```php
 /**
  * EXEMPLE
@@ -251,7 +252,9 @@ $ioc->addDefinitions(array(
     private $bodyReader;
     
     // dans votre fonction
-    $this->bodyReader->validate('...nom_de_la_classe_modele...');
+    $this->bodyReader->validateEntity('...nom_de_la_classe_modele...');
+    // ou
+    $this->bodyReader->validateEntityList('...nom_de_la_classe_modele...'); // si le contenu est une liste
     ```
     * Lancement de l'exception : Huge\Rest\Exceptions\ValidationException
 
@@ -266,6 +269,12 @@ $ioc->addDefinitions(array(
 * Il est possible de définir un mapper d'exceptions par défaut "Exception" => "MonMapper"
 ```php
 $ioc = new \Huge\Rest\WebAppIoC('1.0');
+$ioc->addDefinitions(array(
+    array(
+        'class' => 'MyWebApi\Exceptions\LogicMapper',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    ) // définition des autres composants qui implémentes IExceptionMapper...
+));
 $ioc->addExceptionsMapping(array(
     'LogicException' => 'MyWebApi\Exceptions\LogicMapper',
     'Huge\Rest\Exceptions\NotFoundResourceException' => null, // désactivation du mapper
@@ -273,10 +282,18 @@ $ioc->addExceptionsMapping(array(
 ));
 ```
 * Liste des mappers :
-    * 'Huge\Rest\Exceptions\NotFoundResourceException' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper'
-    * 'Huge\Rest\Exceptions\BadImplementationException' => 'Huge\Rest\Exceptions\Mappers\BadImplementationExceptionMapper'
-    * 'Huge\Rest\Exceptions\InvalidResponseException' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper'
-    * 'Huge\Rest\Exceptions\ValidationException' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper'
+    * 'Huge\Rest\Exceptions\NotFoundResourceException' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper',
+    * 'Huge\Rest\Exceptions\InvalidResponseException' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper',
+    * 'Huge\Rest\Exceptions\ValidationException' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper',
+    * 'Huge\Rest\Exceptions\WebApplicationException' => 'Huge\Rest\Exceptions\Mappers\WebApplicationExceptionMapper',
+    * 'Huge\Rest\Exceptions\SizeLimitExceededException' => 'Huge\Rest\Exceptions\Mappers\SizeLimitExceededExceptionMapper',
+    * 'Exception' => 'Huge\Rest\Exceptions\Mappers\DefaultExceptionMapper'
+
+## Logger
+* Implémenter la factory : Huge\IoC\Factory\ILogFactory
+* Ajouter le composant dans votre conteneur de plus haut niveau
+    * Dans le cas où vous avez * conteneurs et que chacun dispose de son implémentation. L'injection (@Autowired de ILogFactory) ne marchera pas car * implémentations seront détectées.
+    * Généralement, le conteneur WebApp contient l'implémentation et les classes des tests
 
 ## Ordonnancement
 * Analyse de la requête HTTP
@@ -295,7 +312,7 @@ $ioc->addExceptionsMapping(array(
 
 ## Limitations
 * La gestion des erreurs ne permet pas d'exploiter l'héritage des exceptions
-* Logger log4php
+* Logger basé sur l'interface Psr\Log : https://packagist.org/packages/psr/log
 * Basé sur Huge\IoC
 * Validateur basé sur fuel validation
 
@@ -304,7 +321,7 @@ $ioc->addExceptionsMapping(array(
 * Tests d'intégration avec apache2 sur src/test/webapp : phpunit -c src/test/resources/phpunit.xml --testsuite IT
 
 ## Performances
-Voici des petits tests sur ma modeste machine:
+Voici des petits tests sur ma modeste machine PHP5.3):
 Sans ApcCache, ni memcache
 2014-07-29 13:00 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Temps d'exécution de la requête pendant 4.28 ms
 2014-07-29 13:00 - Huge\Rest\Interceptors\PerfInterceptor INFO  : Consommation de 3.5 mo, avec un pic à 3.77 mo
