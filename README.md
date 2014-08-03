@@ -141,6 +141,7 @@ class Person {
      * @Path(":mNumber")
      */
     public function put($id = '') {
+        // @Consumes retenu est celui de la classe (du json)
         $requestBody = (object)$this->request->getEntity();
         $requestBody->id = $id;
         
@@ -308,6 +309,7 @@ $ioc->addExceptionsMapping(array(
 * Ajouter le composant dans votre conteneur de plus haut niveau
     * Dans le cas où vous avez * conteneurs et que chacun dispose de son implémentation. L'injection (@Autowired de ILogFactory) ne marchera pas car * implémentations seront détectées.
     * Généralement, le conteneur WebApp contient l'implémentation et les classes des tests
+* Logger factory (composant) vide : Huge\Rest\Log\NullLoggerFactory
 
 ## Ordonnancement
 * Analyse de la requête HTTP
