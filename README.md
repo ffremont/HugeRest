@@ -89,16 +89,14 @@ class Person {
      * @var \Huge\Rest\Http\HttpRequest
      */
     private $request;
-
-    /**
-     *
-     * @var \Logger
+    
+     /**
+     * @Autowired("Huge\IoC\Factory\ILogFactory")
+     * @var \Huge\IoC\Factory\ILogFactory
      */
-    private $logger; 
+    private $loggerFactory;
    
-    public function __construct() {
-        $this->logger = \Logger::getLogger(__CLASS__);
-    }
+    public function __construct() {}
 
     /**
      * @Get
@@ -143,6 +141,7 @@ class Person {
     }
 
     /**
+     * Accepte le content-type application/json
      * @Post
      */
     public function post() {
@@ -157,7 +156,7 @@ class Person {
      * @Path("search/?:oNumber/?:oNumber")
      */
     public function search($numberA = '', $numberB = '') {
-        $query = $this->request->getParamGet('query');
+        $query = $this->request->getParam('query');
 
         $list = array();
         for ($i = 0; $i < 5; $i++) {
@@ -178,6 +177,14 @@ class Person {
 
     public function setRequest($request) {
         $this->request = $request;
+    }
+    
+    public function getLoggerFactory() {
+        return $this->loggerFactory;
+    }
+
+    public function setLoggerFactory(\Huge\IoC\Factory\ILogFactory $loggerFactory) {
+        $this->loggerFactory = $loggerFactory;
     }
 }
 ```
