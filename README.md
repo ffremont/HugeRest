@@ -206,10 +206,13 @@ $ioc->addBodyReaders(array(
     'application/vnd.github.v1+json' => 'Huge\Rest\Process\Readers\JsonReader'
 ));
 ```
-* Liste des readers disponibles
-    * Huge\Rest\Process\Readers\JsonReader : décode le body avec json_decode 
-    * Huge\Rest\Process\Readers\FormReader : décode le body avec urldecode
-    * Huge\Rest\Process\Readers\TextReader : aucun traitement
+* Liste et configuration des readers disponibles (l'instance HttpResquet = $r)
+    * 'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Readers\FormReader', => $r->getBody() : $_REQUEST
+    * 'application/json' => 'Huge\Rest\Process\Readers\JsonReader', => $r->getBody() : json_decode
+    * 'text/plain' => 'Huge\Rest\Process\Readers\TextReader', => $r-getBody() => au body de la request
+    * 'multipart/form-data' => 'Huge\Rest\Process\Readers\UploadReader', => $r->getBody() : instance Huge\Rest\Http\HttpFiles
+    * 'multipart/octet-stream' => 'Huge\Rest\Process\Readers\UploadReader', // idem
+    * 'application/octet-stream' => 'Huge\Rest\Process\Readers\BinaryReader' => $r->getBody() : instance Huge\Rest\Data\TempFile
 
 ## Gérer un contenu de réponse
 * Une fonction d'une ressource retourne une instance de l'objet Huge\Rest\Http\HttpResponse. Cette dernière peut avoir l'attribut "entity" de valorisé qui sera à convertir en fonction du contentType souhaité de la réponse HTTP.
@@ -220,10 +223,10 @@ $ioc->addBodyWriters(array(
     'application/vnd.github.v1+json' => 'Huge\Rest\Process\Writers\JsonWriter'
 ));
 ```
-* Liste des readers disponibles
-    * Huge\Rest\Process\Writers\JsonWriter : encode $entity avec json_encode
-    * Huge\Rest\Process\Writers\FormWriter : encode $entity avec urlencode
-    * Huge\Rest\Process\Writers\TextWriter : caste en string
+* Liste et configurations des writers disponibles
+    * 'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Writers\FormWriter', => encode $entity avec urlencode
+    * 'application/json' => 'Huge\Rest\Process\Writers\JsonWriter', => encode $entity avec json_encode
+    * 'text/plain' => 'Huge\Rest\Process\Writers\TextWriter' => caste en string
     
 
 ## Filtrer les requêtes
