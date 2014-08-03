@@ -4,6 +4,7 @@ namespace Huge\Rest\Process\Readers;
 
 use Huge\Rest\Process\IBodyReader;
 use Huge\Rest\Exceptions\WebApplicationException;
+use Huge\Rest\Http\HttpFiles;
 
 class UploadReader implements IBodyReader{
 
@@ -19,7 +20,7 @@ class UploadReader implements IBodyReader{
             throw new WebApplicationException('Lecture du flux Upload impossible car $_FILES est vide', 415);
         }
         
-        return $_FILES;
+        return new HttpFiles($_FILES);
     }
 
 }

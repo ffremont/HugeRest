@@ -88,14 +88,16 @@ class Person {
     /**
      * @Post
      * @Path("multipart")
+     * @Consumes({"multipart/form-data"})
      */
     public function uploadPersons() {
-        return HttpResponse::ok()->code(201)->entity($this->request->getEntity());
+        return HttpResponse::ok()->code(201)->entity(serialize($this->request->getEntity()));
     }
     
     /**
      * @Post
      * @Path("stream")
+     * @Consumes({"application/octet-stream"})
      */
     public function uploadPersonsStream() {
         return HttpResponse::ok()->code(201)->entity(serialize($this->request->getEntity()));

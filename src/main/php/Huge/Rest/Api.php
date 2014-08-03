@@ -15,6 +15,7 @@ use Huge\Rest\Exceptions\BadImplementationException;
 use Huge\Rest\Exceptions\InvalidResponseException;
 use Huge\Rest\Exceptions\WebApplicationException;
 
+
 /**
  * @Component
  */
@@ -61,12 +62,6 @@ class Api {
     private $contextRoot;
 
     /**
-     *
-     * @var \Logger
-     */
-    private $logger;
-    
-    /**
      * Liste des tokens utilisable dans les path des ressources
      * 
      * @var array
@@ -83,7 +78,6 @@ class Api {
     public function __construct() {
         $this->contextRoot = '';
         $this->routes = array();
-        $this->logger = \Logger::getLogger(__CLASS__);
     }
 
     /**
@@ -104,7 +98,7 @@ class Api {
         $definitions = $this->webAppIoC->getDefinitions();
         foreach ($resources as $idBean) {
             $definition = $definitions[$idBean];
-            
+
             $classPrefix = '';
             $oRClass = new \ReflectionClass($definition['class']);
             $oPath = $annotationReader->getClassAnnotation($oRClass, 'Huge\Rest\Annotations\Path');
@@ -169,16 +163,25 @@ class Api {
      */
     public function processRoute(Http\HttpRequest $request) {
         $count = count($this->routes);
-        for($i = 0; $i < $count; $i++){
-            $route = $this->routes[ $i ];
+        for ($i = 0; $i < $count; $i++) {
+            $route = $this->routes[$i];
             if (!empty($route['methods']) && !IocArray::in_array($request->getMethod(), $route['methods'])) {
                 continue;
             }
 
-            if (is_array($route['consumes']) && is_array($request->getAccepts())) {
-                $aIntersectAccept = array_intersect($route['consumes'], $request->getAccepts());
-                if (!empty($route['consumes']) && empty($aIntersectAccept)) {
-                    continue;
+            if (IocArray::in_array($request->getMethod(), array('POST', 'PUT'))) {
+                if (($route['consumes'] !== null) && ($request->getAccepts() !== null)) {
+                    $aIntersectContentType = array_intersect($route['consumes'], array($request->getContentType()));
+                    if (!empty($route['consumes']) && empty($aIntersectContentType)) {
+                        continue;
+                    }
+                }
+            } else {
+                if (($route['consumes'] !== null) && ($request->getAccepts() !== null)) {
+                    $aIntersectAccept = array_intersect($route['consumes'], $request->getAccepts());
+                    if (!empty($route['consumes']) && empty($aIntersectAccept)) {
+                        continue;
+                    }
                 }
             }
 
@@ -238,7 +241,7 @@ class Api {
         
         $this->loadRoutes();
         $this->processRoute($this->request);
-        
+
         /* @var $httpResponse \Huge\Rest\Http\HttpResponse */
         $httpResponse = null;
 
@@ -253,14 +256,14 @@ class Api {
                 if (($bodyReaderClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
                     $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request)));
                 } else {
-                    throw new WebApplicationException('Lecture de la requête impossible car "'.$bodyReaderClassName.'" implémente pas "Huge\Rest\Process\IBodyReader" ', 415); //  Not Acceptable
+                    throw new WebApplicationException('Lecture de la requête impossible car "' . $bodyReaderClassName . '" implémente pas "Huge\Rest\Process\IBodyReader" ', 415); //  Not Acceptable
                 }
             }
 
             $beansFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');
             $filtersMapping = $this->webAppIoC->getFiltersMapping();
             $filterCount = count($beansFilter);
-            for($i = 0; $i < $filterCount; $i++){
+            for ($i = 0; $i < $filterCount; $i++) {
                 $idBeanFilter = $beansFilter[$i];
                 if (isset($filtersMapping[$idBeanFilter])) {
                     if (preg_match('#' . $filtersMapping[$idBeanFilter] . '#', $this->request->getUri())) {
@@ -273,41 +276,42 @@ class Api {
             }
             $beansInterceptor = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IInterceptor');
             $interceptorCount = count($beansInterceptor);
-            for($i = 0; $i < $interceptorCount; $i++){
+            for ($i = 0; $i < $interceptorCount; $i++) {
                 $this->webAppIoC->getBean($beansInterceptor[$i])->start($this->request);
             }
 
             $httpResponse = call_user_func_array(array($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass()), $this->route->getMatches());
 
-            if($httpResponse === null){
+            if ($httpResponse === null) {
                 throw new InvalidResponseException('La réponse HTTP ne doit pas être null');
             }
-            
+
             // Récupération du mimeType pour la répone
             $outputMimeType = $this->_extractClassProduce();
             $httpResponse->setContentType($outputMimeType);
-            
-            for($i = 0; $i < $interceptorCount; $i++){
+
+            for ($i = 0; $i < $interceptorCount; $i++) {
                 $this->webAppIoC->getBean($beansInterceptor[$i])->end($httpResponse);
             }
-            
+
             // Write entity
             if ($httpResponse->hasEntity()) {
                 $bodyWriterClassName = $this->webAppIoC->getBodyWriter($outputMimeType);
                 if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
-                    $httpResponse->body(call_user_func_array( 'Huge\Rest\Process\Writers\TextWriter::write', array($httpResponse->getEntity())));
+                    $httpResponse->body(call_user_func_array('Huge\Rest\Process\Writers\TextWriter::write', array($httpResponse->getEntity())));
                 }
-                
             }
         } catch (\Exception $e) {
             $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));
             $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : $exceptionMapperClassName;
-
-            $impls = $exceptionMapperClassName !== null ? class_implements($exceptionMapperClassName) : array();
-            if (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls)) {
-                $httpResponse = call_user_func_array($exceptionMapperClassName . '::map', array($e));
+            
+            $exceptionMapper = $this->webAppIoC->getBean($exceptionMapperClassName);
+            
+            $impls = $exceptionMapperClassName === null ? array() : class_implements($exceptionMapper);
+            if ( ($exceptionMapper !== null) && (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls))) {
+                $httpResponse = call_user_func_array(array($exceptionMapper , 'map'), array($e));
             } else {
                 $httpResponse = Http\HttpResponse::status(500);
             }

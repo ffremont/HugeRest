@@ -5,6 +5,7 @@ namespace Huge\Rest\Interceptors;
 use Huge\IoC\Annotations\Component;
 use Huge\IoC\Annotations\Autowired;
 use Huge\Rest\Process\IInterceptor;
+use Huge\IoC\Factory\ILogFactory;
 
 use Huge\Rest\Http\HttpRequest;
 
@@ -34,26 +35,26 @@ class PerfInterceptor implements IInterceptor{
     private $request;
     
     /**
-     *
-     * @var \Logger
+     * @Autowired("Huge\IoC\Factory\ILogFactory")
+     * @var \Huge\IoC\Factory\ILogFactory
      */
-    private $logger;
+    private $loggerFactory;
     
-    public function __construct() {
-        $this->logger = \Logger::getLogger(__CLASS__);
-    }
+    public function __construct() {}
 
     public function end(\Huge\Rest\Http\HttpResponse $response) {
+        $logger = $this->loggerFactory->getLogger(__CLASS__);
+                
         $time = (microtime(true) - $this->startTime) * 1000; // ms
         $memoryPeak= memory_get_peak_usage() / 1048576;
         $memoryPeak= memory_get_peak_usage() / 1048576;
         
         if($this->request !== null){
-            $this->logger->info('Performance de la ressource : '.$this->request->getUri());
+            $logger->info('Performance de la ressource : '.$this->request->getUri());
         }
         
-        $this->logger->info('Temps d\'exécution de la requête pendant '.round($time, 2).' ms');
-        $this->logger->info('Consommation de '.$this->memoryStart.' mo, avec un pic à '.round($memoryPeak,2).' mo');
+        $logger->info('Temps d\'exécution de la requête pendant '.round($time, 2).' ms');
+        $logger->info('Consommation de '.$this->memoryStart.' mo, avec un pic à '.round($memoryPeak,2).' mo');
     }
 
     public function start(\Huge\Rest\Http\HttpRequest $request) {
@@ -69,6 +70,12 @@ class PerfInterceptor implements IInterceptor{
         $this->request = $request;
     }
 
+    public function getLoggerFactory() {
+        return $this->loggerFactory;
+    }
 
+    public function setLoggerFactory(\Huge\IoC\Factory\ILogFactory $loggerFactory) {
+        $this->loggerFactory = $loggerFactory;
+    }
 }
 

@@ -28,12 +28,6 @@ class WebAppIoC extends SuperIoC {
     private $apiCacheImpl;
 
     /**
-     *
-     * @var \Logger
-     */
-    private $logger;
-
-    /**
      * Liste des filtres qui implémente IFilter
      *      ID_BEAN_FILTRE => urlRegExp
      * 
@@ -90,7 +84,6 @@ class WebAppIoC extends SuperIoC {
     public function __construct($version = '', $configs = array()) {
         parent::__construct($version);
 
-        $this->logger = \Logger::getLogger(__CLASS__);
         $defaultConfig = array(
            'maxBodySize' => isset($configs['maxBodySize']) ? null : ConfigInitHelper::convertUnit(ini_get('post_max_size'))
         );
@@ -133,7 +126,13 @@ class WebAppIoC extends SuperIoC {
             array(
                 'class' => 'Huge\Rest\Routing\Route',
                 'factory' => SimpleFactory::getInstance()
-            )
+            ),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\DefaultExceptionMapper', 'factory' => SimpleFactory::getInstance()),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper', 'factory' => SimpleFactory::getInstance()),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper', 'factory' => SimpleFactory::getInstance()),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\SizeLimitExceededExceptionMapper', 'factory' => SimpleFactory::getInstance()),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper', 'factory' => SimpleFactory::getInstance()),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\WebApplicationExceptionMapper', 'factory' => SimpleFactory::getInstance())
         ));
     }
 
@@ -313,6 +312,5 @@ class WebAppIoC extends SuperIoC {
     public function getConfig($name){
         return isset($this->config[$name]) ? $this->config[$name] : null;
     }
-
 }
 

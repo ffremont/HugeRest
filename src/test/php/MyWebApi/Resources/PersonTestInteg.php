@@ -11,7 +11,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     *
+     *@test
      */
     public function not_found() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -27,7 +27,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * 
+     * @test
      */
     public function get_person_badAccept() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -43,7 +43,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * 
+     * @test
      */
     public function get_person_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -65,7 +65,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * 
+     * @test
      */
     public function head_person_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -85,7 +85,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * 
+     * @test
      */
     public function get_ping_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -105,7 +105,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     *
+     * @test
      */
     public function delete_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -126,7 +126,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
      /**
-     * 
+     * @test
      */
     public function put_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -135,7 +135,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $response = null;
         $expectedJson = '{"nom":"azerty2","id":"2"}';
         try{
-            $response = $client->put('/person/2')->setBody('{"nom":"azerty2"}', 'application/json')->setHeader('accept', 'text/plain,application/vnd.person.v1+json,application/xhtml+xml,application/xml;q=0.9,image/webp,*\/*;q=0.8')->send();
+            $response = $client->put('/person/2')->setBody('{"nom":"azerty2"}', 'application/json')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());
@@ -147,7 +147,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     
+     * @test
      */
     public function post_ok() {
         $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
@@ -178,7 +178,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         try{
             $response = $client->post('/person/multipart', array(), array(
                 'myFile' => '@'.$file
-            ))->setHeader('accept', 'application/json')->send();
+            ))->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());
@@ -186,8 +186,8 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         
         $this->assertEquals(201, $status);
         $decode = json_decode($response->getBody(true));
-        $this->assertTrue(isset($decode->myFile));
-        $this->assertEquals('packagist-logo.png', $decode->myFile->name);
+        
+        $this->assertTrue(strpos($decode, 'Huge\Rest\Http\HttpFiles') !== false);
     }
     
     /**
@@ -200,7 +200,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $status = null;
         $response = null;
         try{
-            $response = $client->post('/person/stream')->setBody(fopen($file, 'r'))->setHeader('Content-Type', 'application/octet-stream')->setHeader('accept', 'application/json')->send();
+            $response = $client->post('/person/stream')->setBody(fopen($file, 'r'))->setHeader('Content-Type', 'application/octet-stream')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());

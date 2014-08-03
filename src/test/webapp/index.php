@@ -2,8 +2,9 @@
 
 $loader = require(__DIR__ . '/../../../vendor/autoload.php');
 $loader->add('MyWebApi\\', __DIR__ . '/../../../src/test/php/');
+$loader->add('Huge\Rest\Utils4Test\\', __DIR__ . '/../../../src/test/php/');
 
-// LOGGER
+// LOGGER log4php
 $configurator = new \LoggerConfiguratorDefault();
 \Logger::configure($configurator->parse(__DIR__.'/../resources/log4php.xml'));
 
@@ -23,6 +24,10 @@ $ioc->addDefinitions(array(
     ),
     array(
         'class' => 'Huge\Rest\Interceptors\PerfInterceptor',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    ),
+    array(
+        'class' => 'Huge\Rest\Utils4Test\Log4phpFactory',
         'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
     )
 ));

@@ -24,7 +24,8 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             array(
                 'class' => 'Huge\Rest\Resources\Person',
                 'factory' => SimpleFactory::getInstance()
-            )
+            ), 
+            array( 'class' => 'Huge\Rest\Utils4Test\Log4phpFactory', 'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance() )
         ));
         $ioc->start();
         
@@ -49,7 +50,8 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             array(
                 'class' => 'Huge\Rest\Resources\Person',
                 'factory' => SimpleFactory::getInstance()
-            )
+            ),
+            array( 'class' => 'Huge\Rest\Utils4Test\Log4phpFactory', 'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance() )
         ));
         $ioc->run();
         
@@ -74,7 +76,8 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             array(
                 'class' => 'Huge\Rest\Resources\Person',
                 'factory' => SimpleFactory::getInstance()
-            )
+            ),
+            array( 'class' => 'Huge\Rest\Utils4Test\Log4phpFactory', 'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance() )
         ));
         $ioc->start();
         $ioc->getBean('Huge\Rest\Api')->setContextRoot('/services');
@@ -100,11 +103,12 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
             array(
                 'class' => 'Huge\Rest\Resources\Person',
                 'factory' => SimpleFactory::getInstance()
-            )
+            ),
+            array( 'class' => 'Huge\Rest\Utils4Test\Log4phpFactory', 'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance() )
         ));
         $ioc->start();
         $ioc->getBean('Huge\Rest\Api')->loadRoutes();
-        $this->assertCount(5, $ioc->getDefinitions());
+        $this->assertCount(12, $ioc->getDefinitions());
         
         $routes = $ioc->getBean('Huge\Rest\Api')->getRoutes();
         $this->assertCount(3, $routes);        
