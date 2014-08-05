@@ -6,6 +6,7 @@ use Huge\IoC\Annotations\Component;
 use Huge\IoC\Container\SuperIoC;
 use Huge\IoC\Factory\ConstructFactory;
 use Huge\IoC\Factory\SimpleFactory;
+use Huge\IoC\RefBean;
 use Huge\IoC\Scope;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -88,6 +89,7 @@ class WebAppIoC extends SuperIoC {
            'maxBodySize' => isset($configs['maxBodySize']) ? null : ConfigInitHelper::convertUnit(ini_get('post_max_size'))
         );
         $this->config = array_merge($defaultConfig, $configs);
+        $loggerCmpFactory = new ConstructFactory(array(new RefBean('Huge\IoC\Factory\ILogFactory', $this)));
         
         $this->isStarted = false;
         $this->fuelValidatorFactory = null;
@@ -128,12 +130,12 @@ class WebAppIoC extends SuperIoC {
                 'class' => 'Huge\Rest\Routing\Route',
                 'factory' => SimpleFactory::getInstance()
             ),
-            array('class' => 'Huge\Rest\Exceptions\Mappers\DefaultExceptionMapper', 'factory' => SimpleFactory::getInstance()),
-            array('class' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper', 'factory' => SimpleFactory::getInstance()),
-            array('class' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper', 'factory' => SimpleFactory::getInstance()),
-            array('class' => 'Huge\Rest\Exceptions\Mappers\SizeLimitExceededExceptionMapper', 'factory' => SimpleFactory::getInstance()),
-            array('class' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper', 'factory' => SimpleFactory::getInstance()),
-            array('class' => 'Huge\Rest\Exceptions\Mappers\WebApplicationExceptionMapper', 'factory' => SimpleFactory::getInstance())
+            array('class' => 'Huge\Rest\Exceptions\Mappers\DefaultExceptionMapper', 'factory' => $loggerCmpFactory),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\InvalidResponseExceptionMapper', 'factory' => $loggerCmpFactory),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper', 'factory' => $loggerCmpFactory),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\SizeLimitExceededExceptionMapper', 'factory' => $loggerCmpFactory),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\ValidationExceptionMapper', 'factory' => $loggerCmpFactory),
+            array('class' => 'Huge\Rest\Exceptions\Mappers\WebApplicationExceptionMapper', 'factory' => $loggerCmpFactory)
         ));
     }
 

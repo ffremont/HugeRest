@@ -17,7 +17,7 @@ class StreamWriter implements IBodyWriter{
      * @return resource
      */
     public static function write($entity) {
-        return get_resource_type($entity) === 'stream' ? $entity : null; 
+        return is_resource($this->body) && (get_resource_type($entity) === 'stream') ? $entity : null; 
     }
 
 }

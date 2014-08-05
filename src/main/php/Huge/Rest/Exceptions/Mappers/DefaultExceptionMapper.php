@@ -6,7 +6,6 @@ use Huge\Rest\Http\HttpResponse;
 use Huge\Rest\Process\IExceptionMapper;
 
 use Huge\IoC\Annotations\Component;
-use Huge\IoC\Annotations\Autowired;
 
 
 /**
@@ -14,24 +13,19 @@ use Huge\IoC\Annotations\Autowired;
  */
 class DefaultExceptionMapper implements IExceptionMapper{
 
-    /**
-     * @Autowired("Huge\IoC\Factory\ILogFactory")
-     * @var \Huge\IoC\Factory\ILogFactory
+    /**)
+     * @var \Psr\Log\LoggerInterface
      */
-    private $loggerFactory;
+    private $logger;
+    
+    public function __construct(\Huge\IoC\Factory\ILogFactory $factory){
+        $this->logger = $factory->getLogger(__CLASS__);
+    }
     
     public function map(\Exception $e) {
-        $this->loggerFactory->getLogger(__CLASS__)->error($e);
+        $this->logger->error($e);
         
         return HttpResponse::status(500);
-    }
-
-    public function getLoggerFactory() {
-        return $this->loggerFactory;
-    }
-
-    public function setLoggerFactory(\Huge\IoC\Factory\ILogFactory $loggerFactory) {
-        $this->loggerFactory = $loggerFactory;
     }
     
 }

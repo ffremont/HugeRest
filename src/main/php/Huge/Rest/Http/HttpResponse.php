@@ -173,7 +173,7 @@ class HttpResponse {
         }
 
         if ($withBody && ($this->body !== null)) {
-            if (get_resource_type($this->body) === 'stream') {
+            if (is_resource($this->body) && (get_resource_type($this->body) === 'stream')) {
                 while ($data = fread($this->body, self::THRESHOLD)) {
                     echo $data;
                     @ob_flush();
