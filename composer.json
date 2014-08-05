@@ -17,7 +17,7 @@
         "psr/log": "1.0.0",
         "doctrine/annotations": "v1.2.0",
         "doctrine/cache" : "v1.3.0",
-        "huge/ioc": "v2.0.0",
+        "huge/ioc": "2.0.1",
         "fuelphp/validation": "0.1"
     },
     "require-dev" : {
