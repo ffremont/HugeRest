@@ -155,14 +155,19 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $status = null;
         $response = null;
         try{
-            $response = $client->post('/person')->setBody('{"nom":"azerty2"}', 'application/json')->setHeader('accept', 'application/json')->send();
+            $response = $client->post('/person')->setBody('name=TOTO', 'application/x-www-form-urlencoded')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());
         }
         
         $this->assertEquals(201, $status);
-        $this->assertNotEmpty($response->getBody(true));
+        $r = $response->getBody(true);
+        $this->assertNotEmpty($r);
+        $json = json_decode($r);
+        $this->assertEquals('TOTO', $json->name);
+        $this->assertTrue(isset($json->entity));
+        $this->assertTrue(isset($json->entity->name));
         $this->assertEquals('application/vnd.person.v1+json', $response->getContentType());
     }
     

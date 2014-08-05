@@ -103,7 +103,8 @@ class WebAppIoC extends SuperIoC {
         $this->bodyWriters = array(
             'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Writers\FormWriter',
             'application/json' => 'Huge\Rest\Process\Writers\JsonWriter',
-            'text/plain' => 'Huge\Rest\Process\Writers\TextWriter'
+            'text/plain' => 'Huge\Rest\Process\Writers\TextWriter',
+            'application/octet-stream' => 'Huge\Rest\Process\Writers\StreamWriter'
         );
         $this->exceptionsMapping = array(
             'Huge\Rest\Exceptions\NotFoundResourceException' => 'Huge\Rest\Exceptions\Mappers\NotFoundResourceExceptionMapper',

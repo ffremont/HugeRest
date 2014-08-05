@@ -3,15 +3,40 @@
 namespace Huge\Rest\Http;
 
 class HttpResponse {
+    /**
+     * Ecriture par bloc de 10Ko
+     * 
+     * @var int
+     */
 
+    const THRESHOLD = 10240;
     const DEFAULT_CONTENT_TYPE = 'application/json';
-    
+
+    /**
+     *
+     * @var int
+     */
     protected $code;
+
+    /**
+     * Le body peut contenir la réponse HTTP ou une ressource afin de streamer le retour
+     * 
+     * @var mixed
+     */
     protected $body;
+
+    /**
+     *
+     * @var array
+     */
     private $headers;
+
+    /**
+     *
+     * @var mixed
+     */
     protected $entity;
-    
-    private static  $STATUS = array(
+    private static $STATUS = array(
         100 => 'HTTP/1.1 100 Continue',
         101 => 'HTTP/1.1 101 Switching Protocols',
         200 => 'HTTP/1.1 200 OK',
@@ -53,55 +78,40 @@ class HttpResponse {
         504 => 'HTTP/1.1 504 Gateway Time-out',
         505 => 'HTTP/1.1 505 HTTP Version Not Supported'
     );
-    
+
     public function __construct($status = 200) {
         $this->code = $status;
         $this->body = null;
         $this->headers = array();
         $this->entity = null;
-        
+
         $this->setContentType(self::DEFAULT_CONTENT_TYPE);
     }
-    
-    public static function ok(){
+
+    public static function ok() {
         return new HttpResponse(200);
     }
-    
-    public function hasEntity(){
+
+    public function hasEntity() {
         return $this->entity !== null;
     }
-    
+
     public function getCode() {
         return $this->code;
     }
-    
+
     /**
      * Ajout l'entête pour l'expiration
      * 
      * @param int $seconds
      * @return \Huge\Rest\Http\HttpResponse
      */
-    public function expires($seconds = 0){
+    public function expires($seconds = 0) {
         $this->addHeader('Expires', gmdate('D, d M Y H:i:s', time() + $seconds) . ' GMT');
-        
+
         return $this;
     }
 
-    public function contentTypeTxt(){
-        $this->setContentType('text/plain');
-        return $this;
-    }
-    
-     public function contentTypeJson(){
-        $this->setContentType('application/json');
-        return $this;
-    }
-    
-    public function contentTypeXml(){
-        $this->setContentType('application/xml');
-        return $this;
-    }
-    
     /**
      * @deprecated 
      * 
@@ -111,7 +121,7 @@ class HttpResponse {
     public static function code($code) {
         return new HttpResponse($code);
     }
-    
+
     public static function status($code) {
         return new HttpResponse($code);
     }
@@ -142,24 +152,39 @@ class HttpResponse {
         $this->entity = $entity;
         return $this;
     }
-    
-    public function setContentType($type){
+
+    public function setContentType($type) {
         $this->headers['Content-Type'] = $type;
         return $this;
     }
-    
-    public function build($withBody = true){
-        foreach($this->headers as $key => $value){
-            @header($key.': '.$value, true);
+
+    /**
+     * Construit la réponse
+     * 
+     * @param boolean $withBody
+     */
+    public function build($withBody = true) {
+        foreach ($this->headers as $key => $value) {
+            @header($key . ': ' . $value, true);
         }
-        
-        if(isset(self::$STATUS[$this->code])){
+
+        if (isset(self::$STATUS[$this->code])) {
             @header(self::$STATUS[$this->code]);
         }
-        
-        if($withBody && ($this->body !== null)){
-            echo $this->body;
+
+        if ($withBody && ($this->body !== null)) {
+            if (get_resource_type($this->body) === 'stream') {
+                while ($data = fread($this->body, self::THRESHOLD)) {
+                    echo $data;
+                    @ob_flush();
+                    @flush();
+                }
+                fclose($this->body);
+            } else {
+                echo $this->body;
+            }
         }
     }
+
 }
 

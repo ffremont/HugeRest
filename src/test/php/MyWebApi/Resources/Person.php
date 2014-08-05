@@ -105,10 +105,13 @@ class Person {
     
      /**
      * @Post
+      * @Consumes({"application/x-www-form-urlencoded"})
      */
     public function post() {
         $person = new \stdClass();
         $person->id = uniqid();
+        $person->name = $this->request->getParam('name');
+        $person->entity = $this->request->getEntity();
         
         return HttpResponse::ok()->code(201)->entity($person);
     }
