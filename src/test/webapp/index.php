@@ -16,7 +16,8 @@ $ioc = new \Huge\Rest\WebAppIoC('1.1', array(
 $ioc->setCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 $ioc->addBodyWriters(array(
     'application/vnd.person.v1+json' => 'Huge\Rest\Process\Writers\JsonWriter',
-    'application/vnd.huge.v2+json' => 'Huge\Rest\Process\Writers\JsonWriter'
+    'application/vnd.huge.v2+json' => 'Huge\Rest\Process\Writers\JsonWriter',
+    'application/vnd.huge.v1+json' => 'Huge\Rest\Process\Writers\JsonWriter'    
 ));
 $ioc->addBodyReaders(array(
     'application/vnd.huge.v2+json' => 'Huge\Rest\Process\Readers\JsonReader'

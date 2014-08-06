@@ -15,7 +15,6 @@ use Huge\Rest\Exceptions\BadImplementationException;
 use Huge\Rest\Exceptions\InvalidResponseException;
 use Huge\Rest\Exceptions\WebApplicationException;
 
-
 /**
  * @Component
  */
@@ -140,10 +139,10 @@ class Api {
 
                 $route = array(
                     'idBean' => $idBean,
-                    'classResource' => $definition['class'],
-                    'methodResource' => $oRMethod->getName(),
+                    'classResource' => $definition['class'], // nom de la classe ressource
+                    'methodResource' => $oRMethod->getName(), // nom de la méthode de la ressource
                     'uri' => $path,
-                    'methods' => $meths,
+                    'methods' => $meths, // liste des méthodes HTTP
                     'consumes' => $oConsumesMethod === null ? ($oConsumesClass === null ? null : $oConsumesClass->value) : $oConsumesMethod->value,
                     'produces' => $oProducesMethod === null ? ($oProducesClass === null ? null : $oProducesClass->value) : $oProducesMethod->value
                 );
@@ -169,6 +168,7 @@ class Api {
                 continue;
             }
 
+            $produce = HttpResponse::DEFAULT_CONTENT_TYPE;
             if (IocArray::in_array($request->getMethod(), array('POST', 'PUT'))) {
                 // consumes match contentType
                 if (($route['consumes'] !== null) && ($request->getContentType() !== null)) {
@@ -177,21 +177,27 @@ class Api {
                         continue;
                     }
                 }
-                
+
                 // produces match accepts
                 if (($route['produces'] !== null) && ($request->getAccepts() !== null)) {
-                    $aIntersectAccepts = array_intersect($route['produces'], $request->getAccepts());
-                    if (empty($aIntersectAccepts)) {
+                    $aIntersectAccept = array_intersect($route['produces'], $request->getAccepts());
+                    if (empty($aIntersectAccept)) {
                         continue;
+                    }else{
+                        $produce = array_shift($aIntersectAccept);
                     }
                 }
-                
             } else {
                 if (($route['consumes'] !== null) && ($request->getAccepts() !== null)) {
                     $aIntersectAccept = array_intersect($route['consumes'], $request->getAccepts());
                     if (empty($aIntersectAccept)) {
                         continue;
                     }
+                }
+                
+                // si on définit @Produces, on se fiche des accepts
+                if($route['produces'] !== null){
+                    $produce = array_shift($route['produces']);
                 }
             }
 
@@ -205,9 +211,9 @@ class Api {
                     'idBean' => $route['idBean'],
                     'uri' => $request->getUri(),
                     'contentType' => $request->getContentType(),
-                    'produces' => $route['produces'],
                     'method' => $request->getMethod(),
-                    'matches' => $matches
+                    'matches' => $matches,
+                    'produce' => $produce
                 ));
                 break;
             }
@@ -221,34 +227,16 @@ class Api {
     }
 
     /**
-     * Retourne le mime type adéquate pour la réponse.
-     * La fonction tient compte des préférences "Produces" et des en-têtes "accept"
-     * 
-     * @return string
-     */
-    private function _extractClassProduce() {
-        $outputMimeType = HttpResponse::DEFAULT_CONTENT_TYPE;
-        if ($this->route->getProduces() !== null) {
-            $produces = $this->route->getProduces();
-            $firstProduce = $produces[0];
-            $accepts = $this->request->getAccepts();
-            if (empty($accepts)) {
-                $outputMimeType = $firstProduce;
-            } else {
-                $intersect = array_intersect($produces, $accepts);
-                $outputMimeType = empty($intersect) ? $firstProduce : array_shift($intersect);
-            }
-        }
-
-        return $outputMimeType;
-    }
-
-    /**
      * Démarre l'analyse de la requête et le dispatch 
+     * 
+     * @param string $contextRoot
+     * @throws WebApplicationException
+     * @throws NotFoundResourceException
+     * @throws InvalidResponseException
      */
     public function run($contextRoot = '') {
         $this->contextRoot = $contextRoot;
-        
+
         $this->loadRoutes();
         $this->processRoute($this->request);
 
@@ -256,7 +244,12 @@ class Api {
         $httpResponse = null;
 
         try {
-            if (!$this->route->isInit()) {
+            if ($this->route->isInit()) {
+                // vérifie si on sait produire le contentType
+                if(!$this->webAppIoC->existsBodyWriter($this->route->getProduce())){
+                    throw new WebApplicationException('Le contentType "'.$this->route->getProduce().'" n\'est pas géré', 406); //  Not Acceptable
+                }
+            }else{
                 throw new NotFoundResourceException($this->request->getUri());
             }
 
@@ -296,9 +289,8 @@ class Api {
                 throw new InvalidResponseException('La réponse HTTP ne doit pas être null');
             }
 
-            // Récupération du mimeType pour la répone
-            $outputMimeType = $this->_extractClassProduce();
-            $httpResponse->setContentType($outputMimeType);
+            // Application du mimeType pour la répone
+            $httpResponse->setContentType($this->route->getProduce());
 
             for ($i = 0; $i < $interceptorCount; $i++) {
                 $this->webAppIoC->getBean($beansInterceptor[$i])->end($httpResponse);
@@ -306,7 +298,7 @@ class Api {
 
             // Write entity
             if ($httpResponse->hasEntity()) {
-                $bodyWriterClassName = $this->webAppIoC->getBodyWriter($outputMimeType);
+                $bodyWriterClassName = $this->webAppIoC->getBodyWriter($this->route->getProduce());
                 if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
@@ -316,12 +308,12 @@ class Api {
         } catch (\Exception $e) {
             $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));
             $exceptionMapperClassName = $exceptionMapperClassName === null ? $this->webAppIoC->getExceptionMapper('Exception') : $exceptionMapperClassName;
-            
+
             $exceptionMapper = $this->webAppIoC->getBean($exceptionMapperClassName);
-            
+
             $impls = $exceptionMapperClassName === null ? array() : class_implements($exceptionMapper);
-            if ( ($exceptionMapper !== null) && (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls))) {
-                $httpResponse = call_user_func_array(array($exceptionMapper , 'map'), array($e));
+            if (($exceptionMapper !== null) && (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls))) {
+                $httpResponse = call_user_func_array(array($exceptionMapper, 'map'), array($e));
             } else {
                 $httpResponse = Http\HttpResponse::status(500);
             }

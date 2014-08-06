@@ -315,5 +315,15 @@ class WebAppIoC extends SuperIoC {
     public function getConfig($name){
         return isset($this->config[$name]) ? $this->config[$name] : null;
     }
+    
+    /**
+     * Retourne vrai si le contentType de retour est géré
+     * 
+     * @param string $contentType
+     * @return boolean
+     */
+    public function existsBodyWriter($contentType){
+        return isset($this->bodyWriters[$contentType]);
+    }
 }
 

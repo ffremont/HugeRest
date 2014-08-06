@@ -50,7 +50,8 @@ class Customer {
     
      /**
      * @Post
-     * @Consumes({"text/vnd.huge+plain"})
+      * @Consumes({"text/vnd.huge+plain"})
+     * @Produces({"text/vnd.huge+plain"})
      */
     public function postTxt() {
         return HttpResponse::ok();
@@ -63,9 +64,6 @@ class Customer {
      * @Produces({"text/plain"})
      */
     public function getV1($id = '') {
-        $customer = new \stdClass();
-        $customer->id = $id;
-
         return HttpResponse::ok()->entity('v1');
     }
     
