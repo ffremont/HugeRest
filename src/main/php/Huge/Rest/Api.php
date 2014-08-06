@@ -170,16 +170,26 @@ class Api {
             }
 
             if (IocArray::in_array($request->getMethod(), array('POST', 'PUT'))) {
-                if (($route['consumes'] !== null) && ($request->getAccepts() !== null)) {
+                // consumes match contentType
+                if (($route['consumes'] !== null) && ($request->getContentType() !== null)) {
                     $aIntersectContentType = array_intersect($route['consumes'], array($request->getContentType()));
-                    if (!empty($route['consumes']) && empty($aIntersectContentType)) {
+                    if (empty($aIntersectContentType)) {
                         continue;
                     }
                 }
+                
+                // produces match accepts
+                if (($route['produces'] !== null) && ($request->getAccepts() !== null)) {
+                    $aIntersectAccepts = array_intersect($route['produces'], $request->getAccepts());
+                    if (empty($aIntersectAccepts)) {
+                        continue;
+                    }
+                }
+                
             } else {
                 if (($route['consumes'] !== null) && ($request->getAccepts() !== null)) {
                     $aIntersectAccept = array_intersect($route['consumes'], $request->getAccepts());
-                    if (!empty($route['consumes']) && empty($aIntersectAccept)) {
+                    if (empty($aIntersectAccept)) {
                         continue;
                     }
                 }
@@ -256,7 +266,7 @@ class Api {
                 if (($bodyReaderClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
                     $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request)));
                 } else {
-                    throw new WebApplicationException('Lecture de la requête impossible car "' . $bodyReaderClassName . '" implémente pas "Huge\Rest\Process\IBodyReader" ', 415); //  Not Acceptable
+                    throw new WebApplicationException('Lecture de la requête impossible car "' . $bodyReaderClassName . '" implémente pas "Huge\Rest\Process\IBodyReader" ', 415);
                 }
             }
 
@@ -300,7 +310,7 @@ class Api {
                 if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
                     $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
                 } else {
-                    $httpResponse->body(call_user_func_array('Huge\Rest\Process\Writers\TextWriter::write', array($httpResponse->getEntity())));
+                    throw new WebApplicationException('Ecriture de la requête impossible car "' . $bodyWriterClassName . '" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406); //  Not Acceptable
                 }
             }
         } catch (\Exception $e) {

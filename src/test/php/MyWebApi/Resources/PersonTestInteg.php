@@ -125,6 +125,36 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('application/vnd.person.v1+json', $response->getContentType());
     }
     
+    /**
+     * @test
+     */
+    public function put_badAccept_ko() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+               
+        try{
+            $response = $client->put('/person/2')->setBody('{"nom":"azerty2"}', 'application/json')->send();
+        }catch(\Exception $e){
+            $status = $e->getResponse()->getStatusCode();
+        }
+        
+        $this->assertEquals(404, $status);
+    }
+    
+     /**
+     * @test
+     */
+    public function put_badContentType_ko() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+               
+        try{
+            $response = $client->put('/person/2')->setBody('{"nom":"azerty2"}', 'text/plain')->setHeader('accept', 'application/vnd.person.v1+json')->send();
+        }catch(\Exception $e){
+            $status = $e->getResponse()->getStatusCode();
+        }
+        
+        $this->assertEquals(404, $status);
+    }
+    
      /**
      * @test
      */
@@ -135,7 +165,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $response = null;
         $expectedJson = '{"nom":"azerty2","id":"2"}';
         try{
-            $response = $client->put('/person/2')->setBody('{"nom":"azerty2"}', 'application/json')->send();
+            $response = $client->put('/person/2')->setBody('{"nom":"azerty2"}', 'application/json')->setHeader('accept', 'application/vnd.person.v1+json')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());
@@ -155,7 +185,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $status = null;
         $response = null;
         try{
-            $response = $client->post('/person')->setBody('name=TOTO', 'application/x-www-form-urlencoded')->send();
+            $response = $client->post('/person')->setBody('name=TOTO', 'application/x-www-form-urlencoded')->setHeader('accept', 'application/vnd.person.v1+json')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());
@@ -183,7 +213,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         try{
             $response = $client->post('/person/multipart', array(), array(
                 'myFile' => '@'.$file
-            ))->send();
+            ))->setHeader('accept', 'application/vnd.person.v1+json')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());
@@ -205,7 +235,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $status = null;
         $response = null;
         try{
-            $response = $client->post('/person/stream')->setBody(fopen($file, 'r'))->setHeader('Content-Type', 'application/octet-stream')->send();
+            $response = $client->post('/person/stream')->setBody(fopen($file, 'r'))->setHeader('Content-Type', 'application/octet-stream')->setHeader('accept', 'application/vnd.person.v1+json')->send();
             $status = $response->getStatusCode();
         }catch(\Exception $e){
             $this->fail($e->getMessage());

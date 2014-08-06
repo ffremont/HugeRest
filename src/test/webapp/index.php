@@ -15,11 +15,19 @@ $ioc = new \Huge\Rest\WebAppIoC('1.1', array(
 ));
 $ioc->setCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 $ioc->addBodyWriters(array(
-    'application/vnd.person.v1+json' => 'Huge\Rest\Process\Writers\JsonWriter'
+    'application/vnd.person.v1+json' => 'Huge\Rest\Process\Writers\JsonWriter',
+    'application/vnd.huge.v2+json' => 'Huge\Rest\Process\Writers\JsonWriter'
+));
+$ioc->addBodyReaders(array(
+    'application/vnd.huge.v2+json' => 'Huge\Rest\Process\Readers\JsonReader'
 ));
 $ioc->addDefinitions(array(
     array(
         'class' => 'MyWebApi\Resources\Person',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    ),
+    array(
+        'class' => 'MyWebApi\Resources\Customer',
         'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
     ),
     array(
