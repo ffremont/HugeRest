@@ -140,7 +140,7 @@ class WebAppIoC extends SuperIoC {
     }
 
     /**
-     * Retourne les définitions des ressources
+     * Retourne les définitions des ressources depuis tous les conteneurs
      * 
      * @return array
      */
@@ -155,6 +155,10 @@ class WebAppIoC extends SuperIoC {
 
         $resources = array();
         $definitions = $this->getDefinitions();
+        /* @var $ioc \Huge\IoC\Container\SuperIoC */
+        foreach($this->getOtherContainers() as $ioc){
+            $definitions = array_merge($definitions, $ioc->getOtherContainers());
+        }
         $annotationReader = new AnnotationReader();
         foreach ($definitions as $definition) {
             $oResource = $annotationReader->getClassAnnotation(new \ReflectionClass($definition['class']), 'Huge\Rest\Annotations\Resource');
