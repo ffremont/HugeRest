@@ -63,7 +63,12 @@ $ioc = new \Huge\Rest\WebAppIoC('1.1', array(
     * @Resource obligatoire
     * @Path facultatif
     * @Consumes facultatif
+        * Si POST, PUT cela correspond au contentType de la requête
+        * Sinon, cela correspond à l'entête accept de la requête
     * @Produces facultatif
+        * Définition du typeMime de sortie
+        * Si POST, PUT cela correspond à l'entête accept de la requête
+        * Sinon, cela correspond au contentType de la réponse
     
 * Les @Path sont des regexp
     * les chaînes trouvées sont ajoutées en paramètres de la fonction
