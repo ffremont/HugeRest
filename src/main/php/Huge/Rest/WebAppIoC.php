@@ -20,7 +20,7 @@ use Huge\Rest\Utils\ConfigInitHelper;
  * @Component
  */
 class WebAppIoC extends SuperIoC {
-
+    
     /**
      * Cache utilisé pour l'exposition REST
      * 
@@ -82,8 +82,8 @@ class WebAppIoC extends SuperIoC {
      * 
      * @param string $version permet de rafraichir le cache lors des montées de versions
      */
-    public function __construct($version = '', $configs = array()) {
-        parent::__construct($version);
+    public function __construct($name = '', $version = '', $configs = array()) {
+        parent::__construct($name, $version);
 
         $defaultConfig = array(
            'maxBodySize' => isset($configs['maxBodySize']) ? null : ConfigInitHelper::convertUnit(ini_get('post_max_size'))
@@ -145,7 +145,7 @@ class WebAppIoC extends SuperIoC {
      * @return array
      */
     public function getResources() {
-        $cacheKey = self::whoAmI() . md5(json_encode($this->getDefinitions())) . $this->version . '_getResources';
+        $cacheKey = $this->name . $this->version . __FUNCTION__;
         if ($this->apiCacheImpl !== null) {
             $resources = $this->apiCacheImpl->fetch($cacheKey);
             if ($resources !== FALSE) {
@@ -252,6 +252,10 @@ class WebAppIoC extends SuperIoC {
         $this->exceptionsMapping = array_merge($this->exceptionsMapping, $exceptionsMapping);
     }
 
+    /**
+     * 
+     * @return array
+     */
     public function getRequestParsers() {
         return $this->bodyReaders;
     }

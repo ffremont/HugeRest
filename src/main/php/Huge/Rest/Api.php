@@ -10,6 +10,7 @@ use Huge\Rest\Http\HttpResponse;
 use Huge\Rest\Routing\Route;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Huge\IoC\Utils\IocArray;
+use Huge\IoC\Utils\Caller;
 use Huge\Rest\Exceptions\NotFoundResourceException;
 use Huge\Rest\Exceptions\BadImplementationException;
 use Huge\Rest\Exceptions\InvalidResponseException;
@@ -83,7 +84,7 @@ class Api {
      * Charge les routes disponibles
      */
     public function loadRoutes() {
-        $cacheKey = __CLASS__ . $this->webAppIoC->getVersion() . '_loadRoutes';
+        $cacheKey = $this->webAppIoC->getName(). $this->webAppIoC->getVersion() . __FUNCTION__;
         if ($this->webAppIoC->getApiCacheImpl() !== null) {
             $routes = $this->webAppIoC->getApiCacheImpl()->fetch($cacheKey);
             if ($routes !== FALSE) {
@@ -94,9 +95,8 @@ class Api {
 
         $annotationReader = new AnnotationReader();
         $resources = $this->webAppIoC->getResources();
-        $definitions = $this->webAppIoC->getDefinitions();
         foreach ($resources as $idBean) {
-            $definition = $definitions[$idBean];
+            $definition = $this->webAppIoC->getDefinitionById($idBean);
 
             $classPrefix = '';
             $oRClass = new \ReflectionClass($definition['class']);
@@ -257,7 +257,7 @@ class Api {
             if (IocArray::in_array($this->route->getMethod(), array('POST', 'PUT'))) {
                 $bodyReaderClassName = $this->webAppIoC->getBodyReader($this->request->getContentType());
                 if (($bodyReaderClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
-                    $this->request->setEntity(call_user_func_array($bodyReaderClassName . '::read', array($this->request)));
+                    $this->request->setEntity(Caller::statiq($bodyReaderClassName, 'read',  array($this->request)));
                 } else {
                     throw new WebApplicationException('Lecture de la requête impossible car "' . $bodyReaderClassName . '" implémente pas "Huge\Rest\Process\IBodyReader" ', 415);
                 }
@@ -283,7 +283,7 @@ class Api {
                 $this->webAppIoC->getBean($beansInterceptor[$i])->start($this->request);
             }
 
-            $httpResponse = call_user_func_array(array($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass()), $this->route->getMatches());
+            $httpResponse = Caller::instance($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass(),  $this->route->getMatches());
 
             if ($httpResponse === null) {
                 throw new InvalidResponseException('La réponse HTTP ne doit pas être null');
@@ -300,7 +300,7 @@ class Api {
             if ($httpResponse->hasEntity()) {
                 $bodyWriterClassName = $this->webAppIoC->getBodyWriter($this->route->getProduce());
                 if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
-                    $httpResponse->body(call_user_func_array($bodyWriterClassName . '::write', array($httpResponse->getEntity())));
+                    $httpResponse->body(Caller::statiq($bodyWriterClassName, 'write', array($httpResponse->getEntity())));
                 } else {
                     throw new WebApplicationException('Ecriture de la requête impossible car "' . $bodyWriterClassName . '" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406); //  Not Acceptable
                 }
@@ -313,7 +313,7 @@ class Api {
 
             $impls = $exceptionMapperClassName === null ? array() : class_implements($exceptionMapper);
             if (($exceptionMapper !== null) && (IocArray::in_array('Huge\Rest\Process\IExceptionMapper', $impls))) {
-                $httpResponse = call_user_func_array(array($exceptionMapper, 'map'), array($e));
+                $httpResponse = Caller::instance($exceptionMapper, 'map', array($e));
             } else {
                 $httpResponse = Http\HttpResponse::status(500);
             }
