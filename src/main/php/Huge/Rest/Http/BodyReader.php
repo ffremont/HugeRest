@@ -52,15 +52,16 @@ class BodyReader {
         }
     }
 
-    /**
+     /**
      * Permet de valider l'entity contenu dans la requête
      * 
      * @param string $validatorClassName
+     * @param array $data
      * @throws Huge\Rest\Exceptions\ValidationException
      */
-    public function validateEntity($validatorClassName) {
+    private function _validate($validatorClassName, $data) {
         $impls = class_implements($validatorClassName);
-        if (($this->request !== null) && ($this->request->getEntity() !== null) && IocArray::in_array('Huge\Rest\Data\IValidator', $impls)) {
+        if (($this->request !== null) && ($data !== null) && IocArray::in_array('Huge\Rest\Data\IValidator', $impls)) {
             $generator = new FromArray();
             $validator = null;
             if ($this->webAppIoC->getFuelValidatorFactory() === null) {
@@ -70,8 +71,28 @@ class BodyReader {
             }
             $generator->setData(call_user_func_array($validatorClassName . '::getConfig', array()))->populateValidator($validator);
 
-            $this->_checkEntity($validator, $this->request->getEntity());
+            $this->_checkEntity($validator, $data);
         }
+    }
+    
+     /**
+     * Permet de valider l'entity contenu dans la requête
+     * 
+     * @param string $validatorClassName
+     * @throws Huge\Rest\Exceptions\ValidationException
+     */
+    public function validate($validatorClassName, $params) {
+        $this->_validate($validatorClassName, $params);
+    }
+
+    /**
+     * Permet de valider l'entity contenu dans la requête
+     * 
+     * @param string $validatorClassName
+     * @throws Huge\Rest\Exceptions\ValidationException
+     */
+    public function validateEntity($validatorClassName) {
+        $this->_validate($validatorClassName, $this->request->getEntity());
     }
     
     /**
