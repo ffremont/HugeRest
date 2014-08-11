@@ -17,16 +17,14 @@ class HttpFile {
      * Permet de créer une représentation du fichier
      * 
      * @param string $fileName
+     * @param array $aData
      * @param int $limit taille max en octet du fichier (gestion applicative)
      * 
      * @throws \InvalidArgumentException
      * @throws \Huge\Rest\Exceptions\UploadException
      */
-    public function __construct($fileName, $limit = null) {
-        $this->file = isset($_FILES[$fileName]) ? $_FILES[$fileName] : null;
-        if($this->file === null){
-            throw new \InvalidArgumentException('Le nom du fichier '.$fileName.' est introuvable dans $_FILES');
-        }
+    public function __construct($aData = array(), $limit = null) {
+        $this->file = $aData;
         
         if( ($limit !== null) && ($this->getSize() > $limit) ){
             throw new UploadException('Fichier trop important, la limite est à '.$limit, 100);

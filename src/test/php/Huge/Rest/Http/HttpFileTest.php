@@ -30,7 +30,7 @@ class HttpFileTest extends \PHPUnit_Framework_TestCase {
         $ex = false;
         $file = null;
         try{
-            $file = new HttpFile('file_valid');
+            $file = new HttpFile($_FILES['file_valid']);
         }catch(\Exception $e){
             $ex = true;
         }
@@ -59,7 +59,7 @@ class HttpFileTest extends \PHPUnit_Framework_TestCase {
         
         $ex = null;
         try{
-            $file = new HttpFile('file_valid', filesize($temp_file)-1);
+            $file = new HttpFile($_FILES['file_valid'], filesize($temp_file)-1);
         }catch(\Exception $e){
             $ex = $e;
         }
