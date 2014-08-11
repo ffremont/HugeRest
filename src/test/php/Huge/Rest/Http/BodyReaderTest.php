@@ -18,15 +18,13 @@ class BodyReaderTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function valideOk(){
-        $server = array(
-            'REQUEST_URI' => '/person/001'
-        );
-        $get = array();
+        $_SERVER['REQUEST_URI'] = '/person/001';
+        $_REQUEST = array();
 
         $ioc = new DefaultIoC();
         $ioc->addDefinitions(array(array(
             'class' => 'Huge\Rest\Http\HttpRequest',
-            'factory' => new ConstructFactory(array($server, $get))
+            'factory' => new ConstructFactory(array())
                 ), array(
             'class' => 'Huge\Rest\Http\BodyReader',
             'factory' => SimpleFactory::getInstance()
@@ -54,15 +52,13 @@ class BodyReaderTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function valideArrayOk(){
-        $server = array(
-            'REQUEST_URI' => '/person/001'
-        );
-        $get = array();
+        $_SERVER['REQUEST_URI'] = '/person/001';
+        $_REQUEST = array();
 
         $ioc = new DefaultIoC();
         $ioc->addDefinitions(array(array(
             'class' => 'Huge\Rest\Http\HttpRequest',
-            'factory' => new ConstructFactory(array($server, $get))
+            'factory' => new ConstructFactory(array())
                 ), array(
             'class' => 'Huge\Rest\Http\BodyReader',
             'factory' => SimpleFactory::getInstance()
@@ -94,15 +90,13 @@ class BodyReaderTest extends \PHPUnit_Framework_TestCase {
      * @test
      */
     public function validateKo() {
-        $server = array(
-            'REQUEST_URI' => '/person/001'
-        );
-        $get = array();
+        $_SERVER['REQUEST_URI'] = '/person/001';
+        $_REQUEST = array();
 
         $ioc = new DefaultIoC();
         $ioc->addDefinitions(array(array(
             'class' => 'Huge\Rest\Http\HttpRequest',
-            'factory' => new ConstructFactory(array($server, $get))
+            'factory' => new ConstructFactory(array())
                 ), array(
             'class' => 'Huge\Rest\Http\BodyReader',
             'factory' => SimpleFactory::getInstance()

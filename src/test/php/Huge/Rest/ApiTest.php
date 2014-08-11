@@ -29,7 +29,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         ));
         $ioc->start();
         
-        $requete = new HttpRequest($_SERVER);
+        $requete = new HttpRequest();
         $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertFalse($ioc->getBean('Huge\Rest\Api')->getRoute()->isInit());        
@@ -55,7 +55,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         ));
         $ioc->run();
         
-        $requete = new HttpRequest($_SERVER);
+        $requete = new HttpRequest();
         $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertTrue($ioc->getBean('Huge\Rest\Api')->getRoute()->isInit());        
@@ -82,7 +82,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         $ioc->start();
         $ioc->getBean('Huge\Rest\Api')->setContextRoot('/services');
         
-        $requete = new HttpRequest($_SERVER);
+        $requete = new HttpRequest();
         $ioc->getBean('Huge\Rest\Api')->processRoute($requete);
         
         $this->assertNotNull($ioc->getBean('Huge\Rest\Api')->getRoute());     

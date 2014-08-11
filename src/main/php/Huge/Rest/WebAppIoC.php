@@ -124,7 +124,7 @@ class WebAppIoC extends SuperIoC {
             ),
             array(
                 'class' => 'Huge\Rest\Http\HttpRequest',
-                'factory' => new ConstructFactory(array($_SERVER, $_REQUEST, $this->getConfig('maxBodySize')))
+                'factory' => new ConstructFactory(array($this->getConfig('maxBodySize')))
             ),
             array(
                 'class' => 'Huge\Rest\Routing\Route',

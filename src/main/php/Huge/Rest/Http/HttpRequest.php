@@ -26,16 +26,16 @@ class HttpRequest {
      * @param array $request
      * @param int $maxBodySize taille max du body de la requête (en octet)
      */
-    public function __construct($server = array(), $request = array(), $maxBodySize = null) {
-        $this->server = $server;
-        $this->headers = $this->_getallheaders($server);
+    public function __construct($maxBodySize = null) {
+        $this->server = $_SERVER;
+        $this->headers = $this->_getallheaders($this->server);
         $this->body = null;
         $this->entity = null;
         $this->accepts = null;
-        $this->params = $request;
+        $this->params = $_REQUEST;
         $this->maxBodySize = $maxBodySize;
 
-        $uriTrim = trim($server['REQUEST_URI'], '/');
+        $uriTrim = trim($this->server['REQUEST_URI'], '/');
         $matches = array();
         if (preg_match('#[^\?]*#', $uriTrim, $matches)) {
             $this->uri = $matches[0];
