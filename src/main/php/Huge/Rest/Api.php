@@ -69,10 +69,11 @@ class Api {
     private static $TOKENS = array(
         ':mString' => '([a-zA-Z]+)',
         ':mNumber' => '([0-9]+)',
-        ':mAlpha' => '([a-zA-Z0-9-_]+)',
+        ':mAlpha' => '([a-zA-Z0-9-_\.]+)',
         ':oString' => '([a-zA-Z]*)',
         ':oNumber' => '([0-9]*)',
-        ':oAlpha' => '([a-zA-Z0-9-_]*)'
+        ':oAlpha' => '([a-zA-Z0-9-_\.]*)',
+        '/' => '\/'
     );
 
     public function __construct() {
