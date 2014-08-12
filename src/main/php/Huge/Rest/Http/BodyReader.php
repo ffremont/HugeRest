@@ -7,6 +7,7 @@ use Huge\Rest\Exceptions\Models\Violation;
 use Huge\IoC\Annotations\Component;
 use Huge\IoC\Annotations\Autowired;
 use Huge\IoC\Utils\IocArray;
+use Huge\IoC\Utils\Caller;
 use Fuel\Validation\Validator;
 use Fuel\Validation\RuleProvider\FromArray;
 
@@ -38,12 +39,26 @@ class BodyReader {
      * 
      * @throws \Huge\Rest\Exceptions\ValidationException
      */
-    private function _checkEntity($validator, $entity) {
-        $result = $validator->run(is_object($entity) ? (array) $entity : $entity);
-
+     private function _checkEntity(Validator $validator, $entity, $config = array()) {
+        $aEntity = is_object($entity) ? (array) $entity : $entity;
+        $validations = array();
+        $oRequired = new \Fuel\Validation\Rule\Required();
+        
+        foreach($config as $field => $rules){
+            if(IocArray::in_array('required', $rules)){
+                if(!isset($aEntity[$field])){
+                    $validations[] = new Violation($field, $oRequired->getMessage());
+                }
+            }
+        }
+        if(!empty($validations)){
+             throw new RestValidationException($validations, 'Validation impossible des données');
+        }
+        
+        $result = $validator->run($aEntity);
+        
         $errors = $result->getErrors();
         if (!empty($errors)) {
-            $validations = array();
             foreach ($errors as $field => $message) {
                 $validations[] = new Violation($field, $message);
             }
@@ -69,9 +84,10 @@ class BodyReader {
             } else {
                 $validator = $this->webAppIoC->getFuelValidatorFactory()->createValidator();
             }
-            $generator->setData(call_user_func_array($validatorClassName . '::getConfig', array()))->populateValidator($validator);
+            $config = Caller::statiq($validatorClassName, 'getConfig');
+            $generator->setData($config)->populateValidator($validator);
 
-            $this->_checkEntity($validator, $data);
+            $this->_checkEntity($validator, $data, $config);
         }
     }
     
@@ -112,11 +128,12 @@ class BodyReader {
             } else {
                 $validator = $this->webAppIoC->getFuelValidatorFactory()->createValidator();
             }
-            $generator->setData(call_user_func_array($validatorClassName . '::getConfig', array()))->populateValidator($validator);
+            $config = Caller::statiq($validatorClassName, 'getConfig');
+            $generator->setData($config)->populateValidator($validator);
 
             if (is_array($this->request->getEntity())) {
                 foreach($this->request->getEntity() as $model){
-                    $this->_checkEntity($validator, $model);
+                    $this->_checkEntity($validator, $model, $config);
                 }
             }else{
                 throw new \InvalidArgumentException('Entity doit être un array');
