@@ -127,6 +127,10 @@ class WebAppIoC extends SuperIoC {
                 'factory' => new ConstructFactory(array($this->getConfig('maxBodySize')))
             ),
             array(
+                'class' => 'Huge\Rest\Http\BodyReader',
+                'factory' => SimpleFactory::getInstance()
+            ),
+            array(
                 'class' => 'Huge\Rest\Routing\Route',
                 'factory' => SimpleFactory::getInstance()
             ),
