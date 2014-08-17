@@ -91,7 +91,7 @@ class Person {
      * @Consumes({"multipart/form-data"})
      */
     public function uploadPersons() {
-        return HttpResponse::ok()->code(201)->entity(serialize($this->request->getEntity()));
+        return HttpResponse::ok()->status(201)->entity(serialize($this->request->getEntity()));
     }
     
     /**
@@ -100,7 +100,7 @@ class Person {
      * @Consumes({"application/octet-stream"})
      */
     public function uploadPersonsStream() {
-        return HttpResponse::ok()->code(201)->entity(serialize($this->request->getEntity()));
+        return HttpResponse::ok()->status(201)->entity(serialize($this->request->getEntity()));
     }
     
      /**
@@ -113,7 +113,7 @@ class Person {
         $person->name = $this->request->getParam('name');
         $person->entity = $this->request->getEntity();
         
-        return HttpResponse::ok()->code(201)->entity($person);
+        return HttpResponse::ok()->status(201)->entity($person);
     }
 
     /**

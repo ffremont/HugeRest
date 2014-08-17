@@ -36,6 +36,9 @@ class HttpResponse {
      * @var mixed
      */
     protected $entity;
+    
+    protected $cacheControl;
+    
     private static $STATUS = array(
         100 => 'HTTP/1.1 100 Continue',
         101 => 'HTTP/1.1 101 Switching Protocols',
@@ -84,6 +87,7 @@ class HttpResponse {
         $this->body = null;
         $this->headers = array();
         $this->entity = null;
+        $this->cacheControl = new CacheControl();
 
         $this->setContentType(self::DEFAULT_CONTENT_TYPE);
     }
@@ -100,28 +104,6 @@ class HttpResponse {
         return $this->code;
     }
 
-    /**
-     * Ajout l'entête pour l'expiration
-     * 
-     * @param int $seconds
-     * @return \Huge\Rest\Http\HttpResponse
-     */
-    public function expires($seconds = 0) {
-        $this->addHeader('Expires', gmdate('D, d M Y H:i:s', time() + $seconds) . ' GMT');
-
-        return $this;
-    }
-
-    /**
-     * @deprecated 
-     * 
-     * @param int $code
-     * @return \Huge\Rest\Http\HttpResponse
-     */
-    public static function code($code) {
-        return new HttpResponse($code);
-    }
-
     public static function status($code) {
         return new HttpResponse($code);
     }
@@ -135,6 +117,10 @@ class HttpResponse {
         return $this;
     }
 
+    public function tag($value){
+        return $this->addHeader('ETag', $value);
+    }
+    
     public function getHeaders() {
         return $this->headers;
     }
@@ -164,6 +150,8 @@ class HttpResponse {
      * @param boolean $withBody
      */
     public function build($withBody = true) {
+        $this->addHeader('Cache-Control', $this->cacheControl->getValue());
+        
         foreach ($this->headers as $key => $value) {
             @header($key . ': ' . $value, true);
         }
@@ -184,6 +172,18 @@ class HttpResponse {
                 echo $this->body;
             }
         }
+    }
+    
+    /**
+     * 
+     * @return \Huge\Rest\Http\CacheControl
+     */
+    public function getCacheControl() {
+        return $this->cacheControl;
+    }
+
+    public function cacheControl($cacheControl) {
+        $this->cacheControl = $cacheControl;
     }
 
 }

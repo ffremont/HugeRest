@@ -240,12 +240,13 @@ class Api {
 
         $this->loadRoutes();
         $this->processRoute($this->request);
-
+        
         /* @var $httpResponse \Huge\Rest\Http\HttpResponse */
         $httpResponse = null;
 
         try {
             if ($this->route->isInit()) {
+                
                 // vérifie si on sait produire le contentType
                 if(!$this->webAppIoC->existsBodyWriter($this->route->getProduce())){
                     throw new WebApplicationException('Le contentType "'.$this->route->getProduce().'" n\'est pas géré', 406); //  Not Acceptable

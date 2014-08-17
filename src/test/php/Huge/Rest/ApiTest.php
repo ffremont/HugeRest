@@ -108,7 +108,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
         ));
         $ioc->start();
         $ioc->getBean('Huge\Rest\Api')->loadRoutes();
-        $this->assertCount(12, $ioc->getDefinitions());
+        $this->assertCount(13, $ioc->getDefinitions());
         
         $routes = $ioc->getBean('Huge\Rest\Api')->getRoutes();
         $this->assertCount(3, $routes);        
