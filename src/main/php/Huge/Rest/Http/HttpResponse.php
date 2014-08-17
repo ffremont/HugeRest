@@ -138,6 +138,12 @@ class HttpResponse {
         $this->entity = $entity;
         return $this;
     }
+    
+    public function expires($expire){
+        $this->addHeader('Expires', gmdate( 'D, d M Y H:i:s',time()+$expire) . ' GMT' );
+        
+        return $this;
+    }
 
     public function setContentType($type) {
         $this->headers['Content-Type'] = $type;
@@ -182,8 +188,10 @@ class HttpResponse {
         return $this->cacheControl;
     }
 
-    public function cacheControl($cacheControl) {
+    public function cacheControl(CacheControl $cacheControl) {
         $this->cacheControl = $cacheControl;
+        
+        return $this;
     }
 
 }
