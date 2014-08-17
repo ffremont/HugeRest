@@ -39,6 +39,18 @@ class CacheControl {
     }
     
     /**
+     * 
+     * @param int $maxage
+     * @return \Huge\Rest\Http\CacheControl
+     */
+    public static function maxAge($maxage){
+        $cache = new CacheControl();
+        $cache->setMaxAge($maxage);
+        
+        return $cache;
+    }
+    
+    /**
      * Retourne la valeur du cache control
      * 
      * @return string
