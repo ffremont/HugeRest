@@ -87,7 +87,7 @@ class HttpResponse {
         $this->body = null;
         $this->headers = array();
         $this->entity = null;
-        $this->cacheControl = new CacheControl();
+        $this->cacheControl = null;
 
         $this->setContentType(self::DEFAULT_CONTENT_TYPE);
     }
@@ -156,7 +156,9 @@ class HttpResponse {
      * @param boolean $withBody
      */
     public function build($withBody = true) {
-        $this->addHeader('Cache-Control', $this->cacheControl->getValue());
+        if($this->cacheControl !== null){
+            $this->addHeader('Cache-Control', $this->cacheControl->getValue());
+        }
         
         foreach ($this->headers as $key => $value) {
             @header($key . ': ' . $value, true);
