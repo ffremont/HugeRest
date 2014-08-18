@@ -170,16 +170,20 @@ class HttpResponse {
             }
         }
 
-        if ($withBody && ($this->body !== null)) {
+        if ($this->body !== null) {
             if (is_resource($this->body) && (get_resource_type($this->body) === 'stream')) {
-                while ($data = fread($this->body, self::THRESHOLD)) {
-                    echo $data;
-                    @ob_flush();
-                    @flush();
+                if($withBody){
+                    while ($data = fread($this->body, self::THRESHOLD)) {
+                        echo $data;
+                        @ob_flush();
+                        @flush();
+                    }
                 }
                 fclose($this->body);
             } else {
-                echo $this->body;
+                if($withBody){
+                    echo $this->body;
+                }
             }
         }
     }
