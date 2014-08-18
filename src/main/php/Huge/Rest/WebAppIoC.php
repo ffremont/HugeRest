@@ -27,14 +27,6 @@ class WebAppIoC extends SuperIoC {
      * @var \Doctrine\Common\Cache\Cache
      */
     private $apiCacheImpl;
-
-    /**
-     * Liste des filtres qui implémente IFilter
-     *      ID_BEAN_FILTRE => urlRegExp
-     * 
-     * @var array
-     */
-    private $filtersMapping;
     
     /**
      * Liste des filtres qui implémente IRequestFilter
