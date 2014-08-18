@@ -234,19 +234,30 @@ $ioc->addBodyWriters(array(
     * 'text/plain' => 'Huge\Rest\Process\Writers\TextWriter' => caste en string
     
 
-## Filtrer les requêtes
+## Filtrer les requêtes et réponses
 * Les filtres permettent d'exercer des contrôles avant les traitements REST. Un filtre est un composant au sens Huge\IoC.
-* Interface à implémenter : Huge\Rest\Process\IFilter
+* Interface à implémenter : Huge\Rest\Process\IRequestFilter
+* Interface à implémenter : Huge\Rest\Process\IResponseFilter
 ```php
 $ioc = new \Huge\Rest\WebAppIoC('1.0');
 $ioc->addDefinitions(array(
     array(
         'class' => 'MyWebApi\Security\Authorization',
         'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    ),array(
+        'class' => 'MyWebApi\Security\AuthorizationBis',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    ),array(
+        'class' => 'MyWebApi\PowerByFilter',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
     )
 ));
-$ioc->addFiltersMapping(array(
-    'MyWebApi\Security\Authorization' => '.*' /* applique le filtre sur toutes les ressources */
+$ioc->addRequestFiltersMapping(array(
+    'MyWebApi\Security\Authorization' => '.*', /* applique le filtre sur toutes les ressources */
+    'MyWebApi\Security\AuthorizationBis' /* on ne tient pas compte des paths */
+));
+$ioc->addResponseFiltersMapping(array(
+    'MyWebApi\PowerByFilter' => '.*'
 ));
 ```
 
@@ -326,12 +337,13 @@ $ioc->addExceptionsMapping(array(
     * si aucune route n'existe, lancement de Huge\Rest\Exceptions\NotFoundResourceException
 * Analyse du contenu de la requête (POST ou PUT)
     * utilisation des IBodyReader
-* Exécution des Huge\Rest\Process\IFilter
+* Exécution des Huge\Rest\Process\IRequestFilter
 * Exécution de la fonction start des intercepteurs Huge\Rest\Process\IInterceptor
 * EXECUTION DU TRAITEMENT LIE A LA RESSOURCE
-* Exécution de la fonction end des intercepteurs Huge\Rest\Process\IInterceptor
 * Détermination du contentType à appliquer dans la réponse HTTP
     * utilisation des IBodyWriter
+* Exécution des Huge\Rest\Process\IResponseFilter
+* Exécution de la fonction end des intercepteurs Huge\Rest\Process\IInterceptor
 * Construction de la réponse : Huge\Rest\Http\HttpResponse (fonction build)
 
 ## Limitations
