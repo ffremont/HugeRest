@@ -36,13 +36,26 @@ $ioc->addDefinitions(array(
         'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
     ),
     array(
+        'class' => 'MyWebApi\Resources\Filters\AuthFilter',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    ),
+    array(
+        'class' => 'MyWebApi\Resources\Filters\PowerByFilter',
+        'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
+    ),
+    array(
         'class' => 'Huge\Rest\Utils4Test\Log4phpFactory',
         'factory' => \Huge\IoC\Factory\SimpleFactory::getInstance()
     )
 ));
-$ioc->addFiltersMapping(array(
-    'Huge\Rest\Interceptors\PerfInterceptor' => '.*'
+$ioc->addRequestFiltersMapping(array(
+    'Huge\Rest\Interceptors\PerfInterceptor' => '.*',
+    'MyWebApi\Resources\Filters\AuthFilter' => 'customer/auth'
 ));
+$ioc->addResponseFiltersMapping(array(
+    'MyWebApi\Resources\Filters\PowerByFilter' => 'customer/auth'
+));
+
 
 
 $ioc->run();

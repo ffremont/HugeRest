@@ -35,6 +35,22 @@ class WebAppIoC extends SuperIoC {
      * @var array
      */
     private $filtersMapping;
+    
+    /**
+     * Liste des filtres qui implémente IRequestFilter
+     *      ID_BEAN_FILTRE => urlRegExp
+     *
+     * @var array
+     */
+    private $requestFiltersMapping;
+    
+    /**
+     * Liste des filtres qui implémente IRequestFilter
+     *      ID_BEAN_FILTRE => urlRegExp
+     * 
+     * @var arrray
+     */
+    private $responseFiltersMapping;
 
     /**
      * Liste des exceptions et du mapper associé (implémente l'interface IExceptionMapper)
@@ -93,7 +109,8 @@ class WebAppIoC extends SuperIoC {
         
         $this->isStarted = false;
         $this->fuelValidatorFactory = null;
-        $this->filtersMapping = array();
+        $this->requestFiltersMapping = array();
+        $this->responseFiltersMapping = array();
         $this->bodyReaders = array(
             'application/x-www-form-urlencoded' => 'Huge\Rest\Process\Readers\FormReader',
             'application/json' => 'Huge\Rest\Process\Readers\JsonReader',
@@ -212,18 +229,41 @@ class WebAppIoC extends SuperIoC {
         $this->apiCacheImpl = $apiCacheImpl;
     }
 
-    public function getFiltersMapping() {
-        return $this->filtersMapping;
+    public function getRequestFiltersMapping() {
+        return $this->requestFiltersMapping;
     }
 
+    public function getResponseFiltersMapping() {
+        return $this->responseFiltersMapping;
+    }
+    
     /**
      *  Ajout des filtres de type intercepteur sur les requêtes HTTP
      *      ID_BEAN (implémente IInterceptor) => str_reg_exp_uri
      * 
-     * @param array $filtersMapping
+     * @param array $filters
      */
-    public function addFiltersMapping(array $filtersMapping) {
-        $this->filtersMapping = array_merge($this->filtersMapping, $filtersMapping);
+    public function addRequestFiltersMapping(array $filters) {
+        $this->requestFiltersMapping = array_merge($this->requestFiltersMapping, $filters);
+    }
+    
+    /**
+     * @Alias addRequestFiltersMapping
+     * 
+     * @param array $filters
+     */
+    public function addFiltersMapping(array $filters){
+        $this->addRequestFiltersMapping($filters);
+    }
+    
+     /**
+     *  Ajout des filtres de type intercepteur sur les réponses HTTP
+     *      ID_BEAN (implémente IInterceptor) => str_reg_exp_uri
+     * 
+     * @param array $filters
+     */
+    public function addResponseFiltersMapping(array $filters) {
+        $this->responseFiltersMapping = array_merge($this->responseFiltersMapping, $filters);
     }
 
     public function getExceptionsMapping() {

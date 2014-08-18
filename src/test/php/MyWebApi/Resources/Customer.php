@@ -40,6 +40,14 @@ class Customer {
         $this->logger = \Logger::getLogger(__CLASS__);
     }
     
+     /**
+     * @Get
+      * @Path("auth")
+     */
+    public function getAuthTxt() {
+        return HttpResponse::ok()->entity('ok_txt');
+    }
+    
     /**
      * @Get
      * @Produces({"text/vnd.huge+plain"})

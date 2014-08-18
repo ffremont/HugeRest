@@ -4,7 +4,7 @@ namespace Huge\Rest\Process;
 
 use Huge\Rest\Http\HttpRequest;
 
-interface IFilter {
+interface IRequestFilter {
     public function doFilter(HttpRequest $request);
 }
 

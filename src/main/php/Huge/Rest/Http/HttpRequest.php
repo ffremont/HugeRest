@@ -43,9 +43,18 @@ class HttpRequest {
             $this->uri = $uriTrim;
         }
     }
+    
+    /**
+     * Retourne les headers
+     * 
+     * @return array
+     */
+    public function getHeaders(){
+        return $this->headers;
+    }
 
     private function _getallheaders($server) {
-        $headers = '';
+        $headers = array();
         foreach ($server as $name => $value) {
             if (substr($name, 0, 5) == 'HTTP_') {
                 $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
@@ -55,6 +64,10 @@ class HttpRequest {
             $headers['Content-Type'] = $server['CONTENT_TYPE'];
         }
 
+        if (function_exists('getallheaders')){
+            $headers = array_merge($headers, getallheaders());
+        }
+        
         return $headers;
     }
 

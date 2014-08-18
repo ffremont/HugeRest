@@ -265,11 +265,11 @@ class Api {
                 }
             }
 
-            $beansFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IFilter');
-            $filtersMapping = $this->webAppIoC->getFiltersMapping();
-            $filterCount = count($beansFilter);
+            $beansRequestFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IRequestFilter');
+            $filtersMapping = $this->webAppIoC->getRequestFiltersMapping();
+            $filterCount = count($beansRequestFilter);
             for ($i = 0; $i < $filterCount; $i++) {
-                $idBeanFilter = $beansFilter[$i];
+                $idBeanFilter = $beansRequestFilter[$i];
                 if (isset($filtersMapping[$idBeanFilter])) {
                     if (preg_match('#' . $filtersMapping[$idBeanFilter] . '#', $this->request->getUri())) {
                         $this->webAppIoC->getBean($idBeanFilter)->doFilter($this->request);
@@ -290,15 +290,9 @@ class Api {
             if ($httpResponse === null) {
                 throw new InvalidResponseException('La réponse HTTP ne doit pas être null');
             }
-
             // Application du mimeType pour la répone
             $httpResponse->setContentType($this->route->getProduce());
-
-            for ($i = 0; $i < $interceptorCount; $i++) {
-                $this->webAppIoC->getBean($beansInterceptor[$i])->end($httpResponse);
-            }
-
-            // Write entity
+             // Write entity
             if ($httpResponse->hasEntity()) {
                 $bodyWriterClassName = $this->webAppIoC->getBodyWriter($this->route->getProduce());
                 if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
@@ -306,6 +300,25 @@ class Api {
                 } else {
                     throw new WebApplicationException('Ecriture de la requête impossible car "' . $bodyWriterClassName . '" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406); //  Not Acceptable
                 }
+            }
+            
+            $beansResponseFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IResponseFilter');
+            $filtersMapping = $this->webAppIoC->getResponseFiltersMapping();
+            $filterCount = count($beansResponseFilter);
+            for ($i = 0; $i < $filterCount; $i++) {
+                $idBeanFilter = $beansResponseFilter[$i];
+                if (isset($filtersMapping[$idBeanFilter])) {
+                    if (preg_match('#' . $filtersMapping[$idBeanFilter] . '#', $this->request->getUri())) {
+                        $this->webAppIoC->getBean($idBeanFilter)->doFilter($httpResponse);
+                        break;
+                    }
+                } else {
+                    $this->webAppIoC->getBean($idBeanFilter)->doFilter($httpResponse);
+                }
+            }
+
+            for ($i = 0; $i < $interceptorCount; $i++) {
+                $this->webAppIoC->getBean($beansInterceptor[$i])->end($httpResponse);
             }
         } catch (\Exception $e) {
             $exceptionMapperClassName = $this->webAppIoC->getExceptionMapper(get_class($e));

@@ -102,7 +102,7 @@ class PersonTestInteg extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(200, $status);
         $this->assertEquals('', $response->getBody(true));
         $this->assertEquals('text/plain', $response->getContentType());
-        $this->assertEquals('public, no-transform', $response->getHeader('Cache-Control'));
+        $this->assertNull($response->getHeader('Cache-Control'));
     }
     
     /**

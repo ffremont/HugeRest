@@ -11,6 +11,43 @@ class CustomerTestInteg extends \PHPUnit_Framework_TestCase {
     }
     
     /**
+     * @test
+     */
+    public function get_txt_authPowerBy_ok() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+        
+        $status = null;
+        $response = null;
+        try{
+            $response = $client->get('/customer/auth')->setHeader('authorization', 'TOTO')->send();
+            $status = $response->getStatusCode();
+        }catch(GuzzleHttp\Exception\BadResponseException $e){
+            $status = $e->getResponse()->getStatusCode();
+        }
+        
+        $this->assertEquals(200, $status);
+        $this->assertEquals('test', $response->getHeader('x-powerby'));
+    }
+    
+     /**
+     * @test
+     */
+    public function get_txt_auth_ko() {
+        $client = new GuzzleHttp\Client($GLOBALS['variables']['apache.integrationTest.baseUrl']);
+        
+        $status = null;
+        $response = null;
+        try{
+            $response = $client->get('/customer/auth')->send();
+            $status = $response->getStatusCode();
+        }catch(GuzzleHttp\Exception\BadResponseException $e){
+            $status = $e->getResponse()->getStatusCode();
+        }
+        
+        $this->assertEquals(401, $status);
+    }
+    
+    /**
      *  On ignore les accepts si on fait un GET sur une fonction qui ne définit que @Produces qui est du "text/vnd.huge+plain" (aucun writer) => 406
      * 
      *@test
