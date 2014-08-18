@@ -36,9 +36,7 @@ class HttpResponse {
      * @var mixed
      */
     protected $entity;
-    
     protected $cacheControl;
-    
     private static $STATUS = array(
         100 => 'HTTP/1.1 100 Continue',
         101 => 'HTTP/1.1 101 Switching Protocols',
@@ -117,10 +115,10 @@ class HttpResponse {
         return $this;
     }
 
-    public function tag($value){
+    public function tag($value) {
         return $this->addHeader('ETag', $value);
     }
-    
+
     public function getHeaders() {
         return $this->headers;
     }
@@ -138,10 +136,10 @@ class HttpResponse {
         $this->entity = $entity;
         return $this;
     }
-    
-    public function expires($expire){
-        $this->addHeader('Expires', gmdate( 'D, d M Y H:i:s',time()+$expire) . ' GMT' );
-        
+
+    public function expires($expire) {
+        $this->addHeader('Expires', gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT');
+
         return $this;
     }
 
@@ -156,16 +154,20 @@ class HttpResponse {
      * @param boolean $withBody
      */
     public function build($withBody = true) {
-        if($this->cacheControl !== null){
+        if ($this->cacheControl !== null) {
             $this->addHeader('Cache-Control', $this->cacheControl->getValue());
         }
-        
+
         foreach ($this->headers as $key => $value) {
             @header($key . ': ' . $value, true);
         }
 
-        if (isset(self::$STATUS[$this->code])) {
-            @header(self::$STATUS[$this->code]);
+        if (function_exists('http_response_code')) {
+            http_response_code($this->code);
+        } else {
+            if (isset(self::$STATUS[$this->code])) {
+                @header(self::$STATUS[$this->code]);
+            }
         }
 
         if ($withBody && ($this->body !== null)) {
@@ -181,7 +183,7 @@ class HttpResponse {
             }
         }
     }
-    
+
     /**
      * 
      * @return \Huge\Rest\Http\CacheControl
@@ -192,7 +194,7 @@ class HttpResponse {
 
     public function cacheControl(CacheControl $cacheControl) {
         $this->cacheControl = $cacheControl;
-        
+
         return $this;
     }
 
