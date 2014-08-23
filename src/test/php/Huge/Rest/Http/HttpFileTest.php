@@ -19,7 +19,7 @@ class HttpFileTest extends \PHPUnit_Framework_TestCase {
         
         $_FILES = array(
             'file_valid' => array(
-                'name' => 'Tux.txt',
+                'name' => 'Huge.1.0.0-BETA_Tux.txt',
                 'tmp_name' => $temp_file,
                 'type' => 'text/plain',
                 'size' => filesize($temp_file),
@@ -38,6 +38,7 @@ class HttpFileTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($ex);
         $this->assertTrue($file->isUploaded());
         $this->assertEquals('Hello world', $file->getContents());
+        $this->assertEquals('txt', $file->getExtension());
     }
     
      /**

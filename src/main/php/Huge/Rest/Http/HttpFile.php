@@ -124,7 +124,7 @@ class HttpFile {
         $nom = $this->file['name'];
 
         $tab = explode('.', $nom);
-        return count($tab) >= 2 ? $tab[1] : null;
+        return count($tab) >= 2 ? $tab[count($tab)-1] : null;
     }
 
     public function getSize() {
