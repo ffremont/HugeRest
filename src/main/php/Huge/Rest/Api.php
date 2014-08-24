@@ -162,6 +162,8 @@ class Api {
      * @return \Huge\Rest\Routing\Route
      */
     public function processRoute(Http\HttpRequest $request) {
+        $negotiator   = new \Negotiation\FormatNegotiator();
+        
         $count = count($this->routes);
         for ($i = 0; $i < $count; $i++) {
             $route = $this->routes[$i];
@@ -179,21 +181,20 @@ class Api {
                     }
                 }
 
-                // produces match accepts
-                if (($route['produces'] !== null) && ($request->getAccepts() !== null)) {
-                    $aIntersectAccept = array_intersect($route['produces'], $request->getAccepts());
-                    if (empty($aIntersectAccept)) {
-                        continue;
-                    }else{
-                        $produce = array_shift($aIntersectAccept);
-                    }
+                if($route['produces'] !== null){
+                    $acceptHeader = $request->getHeader('Accept');
+                    $best = $negotiator->getBest($acceptHeader, $route['produces']);
+                    if($best === null){
+                      continue;  
+                    }           
+                    $produce = $best->getValue();
                 }
             } else {
-                if (($route['consumes'] !== null) && ($request->getAccepts() !== null)) {
-                    $aIntersectAccept = array_intersect($route['consumes'], $request->getAccepts());
-                    if (empty($aIntersectAccept)) {
-                        continue;
-                    }
+                if($route['consumes'] !== null){
+                    $acceptHeader = $request->getHeader('Accept');
+                    if($negotiator->getBest($acceptHeader, $route['consumes']) === null){
+                      continue;  
+                    }  
                 }
                 
                 // si on définit @Produces, on se fiche des accepts

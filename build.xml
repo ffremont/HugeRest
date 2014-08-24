@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="hugeRest" default="build">    
+    
+    <propertyprompt propertyName="dev.mode" defaultValue="Y" promptText="Dev mode Y/N " useExistingValue="true" />
+    <propertyprompt propertyName="version" defaultValue="1.0.2" promptText="Saisir la version" useExistingValue="true" />
+        
+    <property name="vendor" value="ffremont"/>
+    <property name="project" value="hugeRest"/>
+    
+    <property name="skip.test" value="true"/>
+    <property name="target.dir" value="./target"/>
+    <property name="target.name.final" value="${project}"/>
+    
+    <property name="target.name.final.dev" value="${target.name.final}-dev" />
+    <property name="filename.dev" value="${target.name.final}-${version}-dev" />
+    <property name="filename.prod" value="${target.name.final}-${version}-prod" />
+    <property name="target.name.final.prod" value="${target.name.final}-prod" />
+    
+        
+    <!-- Copie des fichiers-->
+    <target name="copy-files-dev">
+        <copy todir="./${target.dir}/${target.name.final.dev}" >
+            <filterchain>
+                <expandproperties />
+            </filterchain>
+            <fileset dir=".">
+                <include name="**/**" />
+                <exclude name="README.md" />
+                <exclude name="vendor/"/>
+                <exclude name="nbproject/" />
+                <exclude name="target/" />
+                <exclude name="build.xml" />
+                <exclude name="composer.lock" />
+            </fileset>
+        </copy>
+        
+        <mkdir dir="./${target.dir}/${target.name.final.dev}/log" />
+    </target>
+    <target name="copy-files-prod">
+        <copy todir="./${target.dir}/${target.name.final.prod}" >
+            <filterchain>
+                <expandproperties />
+            </filterchain>
+            <fileset dir=".">
+                <include name="**/**" />
+                <exclude name="README.md" />
+                <exclude name="vendor/"/>
+                <exclude name="src/test/"/>
+                <exclude name="nbproject/" />
+                <exclude name="target/" />
+                <exclude name="build.xml" />
+                <exclude name="composer.lock" />
+            </fileset>
+        </copy>
+        
+        <mkdir dir="./${target.dir}/${target.name.final.prod}/log" />
+    </target>
+    
+    <!-- Nettoyage -->
+    <target name="clean">
+        <exec command="rm -rf target" dir="./"/>      
+    </target>
+    
+    <target name="prepare">
+        <mkdir dir="./${target.dir}" />
+        <if>
+            <equals arg1="${dev.mode}" arg2="Y" />
+            <then>
+                <phingcall target="copy-files-dev"></phingcall>
+                <exec command="composer install " dir="./${target.dir}/${target.name.final.dev}"/>
+            </then>
+            <else>
+                <parallel threadCount="2">
+                    <phingcall target="copy-files-dev"></phingcall>
+                    <phingcall target="copy-files-prod"></phingcall>
+                </parallel>
+                <parallel threadCount="2">
+                    <exec command="composer install " dir="./${target.dir}/${target.name.final.dev}"/>
+                    <exec command="composer --no-dev --optimize-autoloader install " dir="./${target.dir}/${target.name.final.prod}"/>
+                </parallel>
+            </else>
+        </if>
+    </target>
+    
+    <!-- test -->
+    <target name="test" depends="prepare">
+        <if>
+            <equals arg1="${skip.test}" arg2="true" />
+            <then>
+                <echo>Skip tests</echo>
+            </then>
+            <else>
+                <exec command="phpunit -c src/test/resources/phpunit.xml --testsuite TU" dir="./${target.dir}/${target.name.final.dev}" outputProperty="phpunit.out" returnProperty="phpunit.return" checkreturn="true"/>
+                <echo>${phpunit.return}</echo>
+                <echo>${phpunit.out}</echo>
+                
+                <exec command="phpunit -c src/test/resources/phpunit.xml --testsuite IT" dir="./${target.dir}/${target.name.final.dev}" outputProperty="phpunit.out" returnProperty="phpunit.return" checkreturn="true"/>
+                <echo>${phpunit.return}</echo>
+                <echo>${phpunit.out}</echo>
+            </else>
+        </if>
+    </target>
+    
+    <target name="build" depends="test">
+        <if>
+            <equals arg1="${dev.mode}" arg2="Y" />
+            <then>
+                <exec command="7zr a ../${target.name.final.dev}.7z *" dir="./${target.dir}/${target.name.final.dev}"/>
+            </then>
+            <else>
+                <parallel threadCount="2">
+                    <exec command="7zr a ../${filename.dev}.7z *" dir="./${target.dir}/${target.name.final.dev}"/>
+                    <exec command="7zr a ../${filename.prod}.7z *" dir="./${target.dir}/${target.name.final.prod}"/>
+                </parallel>
+            </else>
+        </if>
+    </target>
+    
+    <target name="curl.repo" >
+        <exec checkreturn="true" outputProperty="repo.out" command="curl -i ${repo.url} -F file=@${filename}.7z -F vendorName='${vendor}' -F projectName='${project}' -F version='${version}' -F classifier='${classifier}' -F sha1='${sha1}' -H 'Accept: application/json'" dir="./${target.dir}"/>
+        <if>
+            <contains string="${repo.out}" substring="201 Created"/>
+            <then></then>
+            <else>
+                <fail message="Failded Curl" />
+            </else>
+        </if>
+    </target>
+    
+    
+    <!-- créé le tag -->
+    <target name="deploy" depends="build">
+        <!--svncopy
+        nocache="true"
+        repositoryurl="${svn.repository}/trunk/"
+        todir="${svn.repository}/tags/${version}"
+        message="Tag release ${version}" /-->
+        <echo>${builddir}</echo>
+        
+        <filehash hashtype="1" file="${target.dir}/${filename.dev}.7z" propertyname="sha1.dev" />
+        
+        <if>
+            <equals arg1="${dev.mode}" arg2="Y" />
+            <then>
+                <phingcall target="curl.repo">
+                    <property name="filename" value="${filename.dev}"/>
+                    <property name="classifier" value="dev"/>
+                    <property name="sha1" value="${sha1.dev}"/>
+                </phingcall>
+            </then>
+            <else>
+                <filehash hashtype="1" file="${target.dir}/${filename.prod}.7z" propertyname="sha1.prod" />
+                <parallel threadCount="2">
+                    <phingcall target="curl.repo">
+                        <property name="filename" value="${filename.dev}"/>
+                        <property name="classifier" value="dev"/>
+                        <property name="sha1" value="${sha1.dev}"/>
+                    </phingcall>
+                    <phingcall target="curl.repo">
+                        <property name="filename" value="${filename.prod}"/>
+                        <property name="classifier" value="prod"/>
+                        <property name="sha1" value="${sha1.prod}"/>
+                    </phingcall>
+                </parallel>
+            </else>
+        </if>
+    </target>
+</project>

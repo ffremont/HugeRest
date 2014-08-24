@@ -78,11 +78,15 @@ class HttpRequest {
      */
     public function getAccepts() {
         if ($this->accepts === null) {
-            $matchesAccepts = array();
-            if (preg_match("#[^;]+#", $this->getHeader('Accept'), $matchesAccepts)) {
-                $this->accepts = explode(',', $matchesAccepts[0]);
-            } else {
-                $this->accepts = array();
+            $this->accepts = array();
+            $matchesAccepts = explode(',', $this->getHeader('Accept'));
+            foreach($matchesAccepts as $accepts){
+                $pos = strpos($accepts, ';');
+                if($pos === false){
+                    $this->accepts[] = $accepts;
+                }else{
+                    $this->accepts[] = substr($accepts, 0, $pos);
+                }
             }
         }
 
