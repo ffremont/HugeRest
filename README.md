@@ -10,7 +10,6 @@ Installer avec composer
     {
         "require": {
            "huge/rest": "...",
-           "huge/ioc": "...",
            "doctrine/cache" : "v1.3.0"
         }
     }
