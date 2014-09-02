@@ -85,7 +85,7 @@ class Api {
      * Charge les routes disponibles
      */
     public function loadRoutes() {
-        $cacheKey = $this->webAppIoC->getName() . $this->webAppIoC->getVersion() . __FUNCTION__;
+        $cacheKey = md5($this->webAppIoC->getName() . $this->webAppIoC->getVersion() . __FUNCTION__);
         if ($this->webAppIoC->getApiCacheImpl() !== null) {
             $routes = $this->webAppIoC->getApiCacheImpl()->fetch($cacheKey);
             if ($routes !== FALSE) {
@@ -228,7 +228,7 @@ class Api {
     /**
      * Démarre l'analyse de la requête et le dispatch 
      * 
-     * @param string $contextRoot
+     * @param string $contextRoot nom
      * @throws WebApplicationException
      * @throws NotFoundResourceException
      * @throws InvalidResponseException

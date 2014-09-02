@@ -18,12 +18,18 @@ class InvalidResponseExceptionMapper implements IExceptionMapper{
      */
     private $logger;
     
-    public function __construct(\Huge\IoC\Factory\ILogFactory $factory){
-        $this->logger = $factory->getLogger(__CLASS__);
+    /**
+     * 
+     * @param \Huge\IoC\Factory\ILogFactory $factory
+     */
+    public function __construct($factory){
+        $this->logger = $factory === null ? $factory : $factory->getLogger(__CLASS__);
     }
     
     public function map(\Exception $e) {
-        $this->logger->error($e);
+        if($this->logger !== null){
+            $this->logger->error($e);
+        }
         
         return HttpResponse::status(500)->entity($e->getMessage());
     }

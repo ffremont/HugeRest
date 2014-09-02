@@ -43,6 +43,10 @@ class PerfInterceptor implements IInterceptor{
     public function __construct() {}
 
     public function end(\Huge\Rest\Http\HttpResponse $response) {
+        if($this->loggerFactory === null){
+            return;
+        }
+        
         $logger = $this->loggerFactory->getLogger(__CLASS__);
                 
         $time = (microtime(true) - $this->startTime) * 1000; // ms
@@ -74,7 +78,11 @@ class PerfInterceptor implements IInterceptor{
         return $this->loggerFactory;
     }
 
-    public function setLoggerFactory(\Huge\IoC\Factory\ILogFactory $loggerFactory) {
+    /**
+     * 
+     * @param \Huge\IoC\Factory\ILogFactory $loggerFactory
+     */
+    public function setLoggerFactory($loggerFactory) {
         $this->loggerFactory = $loggerFactory;
     }
 }
