@@ -85,7 +85,7 @@ class Api {
      * Charge les routes disponibles
      */
     public function loadRoutes() {
-        $cacheKey = $this->webAppIoC->getName(). $this->webAppIoC->getVersion() . __FUNCTION__;
+        $cacheKey = $this->webAppIoC->getName() . $this->webAppIoC->getVersion() . __FUNCTION__;
         if ($this->webAppIoC->getApiCacheImpl() !== null) {
             $routes = $this->webAppIoC->getApiCacheImpl()->fetch($cacheKey);
             if ($routes !== FALSE) {
@@ -162,12 +162,18 @@ class Api {
      * @return \Huge\Rest\Routing\Route
      */
     public function processRoute(Http\HttpRequest $request) {
-        $negotiator   = new \Negotiation\FormatNegotiator();
-        
+        $negotiator = new \Negotiation\FormatNegotiator();
+
         $count = count($this->routes);
         for ($i = 0; $i < $count; $i++) {
             $route = $this->routes[$i];
             if (!empty($route['methods']) && !IocArray::in_array($request->getMethod(), $route['methods'])) {
+                continue;
+            }
+
+            $matches = array();
+            $replaceTokens = strtr($route['uri'], self::$TOKENS);
+            if (preg_match('#^' . ($this->contextRoot === '' ? '' : $this->contextRoot . '/') . $replaceTokens . '$#', $request->getUri(), $matches) !== 1) {
                 continue;
             }
 
@@ -181,48 +187,39 @@ class Api {
                     }
                 }
 
-                if($route['produces'] !== null){
+                if ($route['produces'] !== null) {
                     $acceptHeader = $request->getHeader('Accept');
                     $best = $negotiator->getBest($acceptHeader, $route['produces']);
-                    if($best === null){
-                      continue;  
-                    }           
+                    if ($best === null) {
+                        continue;
+                    }
                     $produce = $best->getValue();
                 }
             } else {
-                if($route['consumes'] !== null){
+                if ($route['consumes'] !== null) {
                     $acceptHeader = $request->getHeader('Accept');
-                    if($negotiator->getBest($acceptHeader, $route['consumes']) === null){
-                      continue;  
-                    }  
+                    if ($negotiator->getBest($acceptHeader, $route['consumes']) === null) {
+                        continue;
+                    }
                 }
-                
+
                 // si on définit @Produces, on se fiche des accepts
-                if($route['produces'] !== null){
+                if ($route['produces'] !== null) {
                     $produce = array_shift($route['produces']);
                 }
             }
 
-            $matches = array();
-            $replaceTokens = strtr($route['uri'], self::$TOKENS);
-            if (preg_match('#^' . ($this->contextRoot === '' ? '' : $this->contextRoot . '/') . $replaceTokens . '$#', $request->getUri(), $matches)) {
-                array_shift($matches);
-                $this->route->init(array(
-                    'resourceClass' => $route['classResource'],
-                    'methodClass' => $route['methodResource'],
-                    'idBean' => $route['idBean'],
-                    'uri' => $request->getUri(),
-                    'contentType' => $request->getContentType(),
-                    'method' => $request->getMethod(),
-                    'matches' => $matches,
-                    'produce' => $produce
-                ));
-                break;
-            }
-
-            if ($this->route->isInit()) {
-                return;
-            }
+            array_shift($matches);
+            $this->route->init(array(
+                'resourceClass' => $route['classResource'],
+                'methodClass' => $route['methodResource'],
+                'idBean' => $route['idBean'],
+                'uri' => $request->getUri(),
+                'contentType' => $request->getContentType(),
+                'method' => $request->getMethod(),
+                'matches' => $matches,
+                'produce' => $produce
+            ));
         }
 
         return;
@@ -241,18 +238,18 @@ class Api {
 
         $this->loadRoutes();
         $this->processRoute($this->request);
-        
+
         /* @var $httpResponse \Huge\Rest\Http\HttpResponse */
         $httpResponse = null;
 
         try {
             if ($this->route->isInit()) {
-                
+
                 // vérifie si on sait produire le contentType
-                if(!$this->webAppIoC->existsBodyWriter($this->route->getProduce())){
-                    throw new WebApplicationException('Le contentType "'.$this->route->getProduce().'" n\'est pas géré', 406); //  Not Acceptable
+                if (!$this->webAppIoC->existsBodyWriter($this->route->getProduce())) {
+                    throw new WebApplicationException('Le contentType "' . $this->route->getProduce() . '" n\'est pas géré', 406); //  Not Acceptable
                 }
-            }else{
+            } else {
                 throw new NotFoundResourceException($this->request->getUri());
             }
 
@@ -260,7 +257,7 @@ class Api {
             if (IocArray::in_array($this->route->getMethod(), array('POST', 'PUT'))) {
                 $bodyReaderClassName = $this->webAppIoC->getBodyReader($this->request->getContentType());
                 if (($bodyReaderClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyReader', class_implements($bodyReaderClassName))) {
-                    $this->request->setEntity(Caller::statiq($bodyReaderClassName, 'read',  array($this->request)));
+                    $this->request->setEntity(Caller::statiq($bodyReaderClassName, 'read', array($this->request)));
                 } else {
                     throw new WebApplicationException('Lecture de la requête impossible car "' . $bodyReaderClassName . '" implémente pas "Huge\Rest\Process\IBodyReader" ', 415);
                 }
@@ -286,14 +283,14 @@ class Api {
                 $this->webAppIoC->getBean($beansInterceptor[$i])->start($this->request);
             }
 
-            $httpResponse = Caller::instance($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass(),  $this->route->getMatches());
+            $httpResponse = Caller::instance($this->webAppIoC->getBean($this->route->getIdBean()), $this->route->getMethodClass(), $this->route->getMatches());
 
             if ($httpResponse === null) {
                 throw new InvalidResponseException('La réponse HTTP ne doit pas être null');
             }
             // Application du mimeType pour la répone
             $httpResponse->setContentType($this->route->getProduce());
-             // Write entity
+            // Write entity
             if ($httpResponse->hasEntity()) {
                 $bodyWriterClassName = $this->webAppIoC->getBodyWriter($this->route->getProduce());
                 if (($bodyWriterClassName !== null) && IocArray::in_array('Huge\Rest\Process\IBodyWriter', class_implements($bodyWriterClassName))) {
@@ -302,7 +299,7 @@ class Api {
                     throw new WebApplicationException('Ecriture de la requête impossible car "' . $bodyWriterClassName . '" implémente pas "Huge\Rest\Process\IBodyWriter" ', 406); //  Not Acceptable
                 }
             }
-            
+
             $beansResponseFilter = $this->webAppIoC->findBeansByImpl('Huge\Rest\Process\IResponseFilter');
             $filtersMapping = $this->webAppIoC->getResponseFiltersMapping();
             $filterCount = count($beansResponseFilter);
@@ -381,4 +378,3 @@ class Api {
     }
 
 }
-
