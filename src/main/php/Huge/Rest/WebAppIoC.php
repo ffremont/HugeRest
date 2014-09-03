@@ -158,7 +158,7 @@ class WebAppIoC extends SuperIoC {
      * @return array
      */
     public function getResources() {
-        $cacheKey = $this->name . $this->version . __FUNCTION__;
+        $cacheKey = md5($this->name . $this->version . __FUNCTION__);
         if ($this->apiCacheImpl !== null) {
             $resources = $this->apiCacheImpl->fetch($cacheKey);
             if ($resources !== FALSE) {
@@ -167,7 +167,7 @@ class WebAppIoC extends SuperIoC {
         }
 
         $resources = array();
-        $definitions = $this->getAllDefinitions();
+        $definitions = $this->getDefinitions();
         $annotationReader = new AnnotationReader();
         foreach ($definitions as $definition) {
             $oResource = $annotationReader->getClassAnnotation(new \ReflectionClass($definition['class']), 'Huge\Rest\Annotations\Resource');
